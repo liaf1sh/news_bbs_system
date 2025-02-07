@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lindong.dao.IPlateDao">
+    <resultMap id="PlatePostResult" type="plate">
+        <id column="plateId" property="id"></id>
+        <result column="plate_name" property="plate_name"></result>
+        <result column="plate_photo" property="plate_photo"></result>
+        <result column="theme" property="theme"></result>
+        <result column="posts" property="posts"></result>
+        <result column="collect_total" property="collect_total"></result>
+        <result column="plate_vest" property="plate_vest"></result>
+        <collection property="postList" ofType="post">
+            <id column="postId" property="id" ></id>
+            <result column="title" property="title"></result>
+            <result column="user_id" property="user_id"></result>
+            <result column="publish_time" property="publish_time"></result>
+            <result column="browse_count" property="browse_count"></result>
+            <result column="reply_count" property="reply_count"></result>
+            <result column="postPublishTime" property="publish_time"></result>
+            <result column="first_post" property="first_post"></result>
+            <result column="post_status" property="post_status"></result>
+            <result column="post_author" property="post_author"></result>
+            <result column="plate_id" property="plate_id"></result>
+            <result column="last_reply" property="last_reply"></result>
+            <result column="last_reply_time" property="last_reply_time"></result>
+            <result column="picture" property="picture"></result>
+        </collection>
+    </resultMap>
+
+    <sql id="platePost">
+        plate p1 join post p2 on p1.id = p2.plate_id join user p3 on p2.user_id=p3.id
+    </sql>
+    <!--获取所有版块-->
+    <select id="findAll" resultType="plate">
+        select * from plate
+    </select>
+    <select id="getPlateById" parameterType="int" resultType="plate">
+        select * from plate where id=#{0}
+    </select>
+    <update id="updatePlate" parameterType="plate">
+        update plate
+        <set>
+            <if test="plate_name != null and plate_name != ''">
+                plate_name=#{plate_name},
+            </if>
+            <if test="plate_photo != null and plate_photo != ''">
+                plate_photo=#{plate_photo},
+            </if>
+            <if test="theme != null and theme != ''">
+                theme=theme+1,
+            </if>
+            <if test="posts != null and posts != ''">
+                posts=posts+1,
+            </if>
+            <if test="collect_total != null and collect_total != ''">
+                collect_total=collect_total+1,
+            </if>
+            <if test="plate_vest != null and plate_vest != ''">
+                plate_vest=#{plate_vest},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <!--查看版块排名-->
+    <select id="plateRanking"  resultType="Plate">
+       select id from plate order by theme desc;
+    </select>
+    <!--插入新主题主题数量加一-->
+    <update id="updatePlateInfo" parameterType="Map">
+        update plate
+        <set>
+            <if test="plateType='addPlateTheme'" >
+                theme=theme+1 where id = #{plateId}
+            </if>
+        </set>
+    </update>
+
+    <!--查看版块主题信息-->
+    <select id="getPlatePostInfo" resultMap="PlatePostResult" parameterType="java.util.Map">
+        select p1.id as plateId,p1.*,p2.id as postId,p2.*,p3.picture from
+        <trim>
+            <if test="selectType=='selectTimePost'">
+                <include refid="platePost"></include>
+                and p2.post_status not in(0,2,6) and p1.id =#{pl_type} and p2.publish_time > #{selectTime} order by p2.publish_time desc  limit #{pageStart},#{pageSize}
+            </if>
+
+            <if test="selectType=='default'">
+                <include refid="platePost"></include>
+                and p2.post_status not in(0,2,6) and p1.id =#{pl_type} limit #{pageStart},#{pageSize}
+            </if>
+            <if test="selectType=='new'">
+                <include refid="platePost"></include>
+                and p2.post_status not in(0,2,6) and p1.id =#{pl_type} order by p2.publish_time desc limit #{pageStart},#{pageSize}
+            </if>
+            <if test="selectType=='hot'">
+                <include refid="platePost"></include>
+                and p2.post_status not in(0,2,6) and p1.id =#{pl_type} order by p2.browse_count desc,reply_count desc limit #{pageStart},#{pageSize}
+            </if>
+            <if test="selectType=='heat'">
+                plate p1 join post p2 on p1.id = p2.plate_id join user p3 on p2.user_id=p3.id  and p2.post_status not in(0,2,6) and p1.id =#{pl_type} order by p2.post_heat desc limit #{pageStart},#{pageSize}
+            </if>
+            <if test="selectType=='essence'">
+                <include refid="platePost"></include>
+                and p2.post_status =4 and p1.id =#{pl_type} order by p2.browse_count desc,reply_count desc limit #{pageStart},#{pageSize}
+            </if>
+            <if test="selectType=='lastPublish'">
+                <include refid="platePost"></include>
+                and p2.post_status not in(0,2,6) and p1.id =#{pl_type} order by p2.last_reply_time desc limit #{pageStart},#{pageSize}
+            </if>
+        </trim>
+    </select>
+    <!--查看置顶主题信息-->
+    <select id="getIstopPostInfo" resultMap="PlatePostResult" parameterType="java.util.Map">
+        select p1.id as plateId,p1.*,p2.id as postId,p2.* ,p3.picture from
+        <include refid="platePost"></include> and p1.id =#{pl_type} and p2.post_status=2;
+    </select>
+    <!--查看所在版块的主题数量-->
+    <select id="getCount" resultType="Integer" parameterType="java.util.Map">
+        select count(*) from post
+        <where>
+            <choose>
+                <when test="selectType=='selectTimePost'">
+                    plate_id =#{pl_type} and publish_time > #{selectTime};
+                </when>
+                <when test="selectType=='essence'">
+                    plate_id =#{pl_type} and post_status =4;
+                </when>
+                <otherwise>
+                    plate_id =#{pl_type} and post_status not in(0,2,6);
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="selectNotice" parameterType="int" resultType="Notice">
+    select n.*,u.another_name
+      from notice n
+      left join user u on u.id=n.n_uid
+    where n.n_plate_id=#{0} order by n.n_id desc limit 0,1;
+    </select>
+</mapper>

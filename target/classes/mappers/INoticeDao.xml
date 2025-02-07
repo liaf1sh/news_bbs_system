@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lindong.dao.INoticeDao">
+    <!--后台发表公告-->
+    <insert id="publishNotice" parameterType="java.util.Map">
+        insert into notice values(0,#{nTitle},#{nContent},now(),#{nPlateName},#{nUId},#{nPlateId})
+    </insert>
+    <!--后台查看公告信息-->
+    <select id="getNoticeList" parameterType="java.util.Map" resultType="notice">
+        select n.*,u.another_name  from notice n ,user u
+        <where>
+            u.id=n.n_uid
+            <if test="nTitle!=null and nTitle!=''">
+                and n.n_title like CONCAT('%',#{nTitle},'%')
+            </if>
+            <if test="nContent!=null and nContent!=''">
+                and n.n_content like CONCAT('%',#{nContent},'%')
+            </if>
+            <if test="start_time != null and start_time != '' and end_time != null and end_time != ''">
+                and Date(n.n_time) between #{start_time} and #{end_time}
+            </if>
+            <if test="plateName!=''and plateName!=null">
+                and n.n_in_plate_name=#{plateName}
+            </if>
+            <if test="anotherName!=''and anotherName!=null">
+                and u.another_name  like CONCAT('%',#{anotherName},'%')
+            </if>
+            <if test="userId!=null and userId!=''">
+                and n.n_uid =#{userId}
+            </if>
+            <if test="plateId!=null and plateId!=''">
+                and n.n_plate_id =#{plateId}
+            </if>
+        </where>
+        limit #{pageStart},#{pageSize};
+    </select>
+    <!--公告总条数-->
+    <select id="getCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        select count(*) from notice n ,user u
+        <where>
+            u.id=n.n_uid
+            <if test="nTitle!=null and nTitle!=''">
+                and n.n_title like CONCAT('%',#{nTitle},'%')
+            </if>
+            <if test="nContent!=null and nContent!=''">
+                and n.n_content like CONCAT('%',#{nContent},'%')
+            </if>
+            <if test="start_time != null and start_time != '' and end_time != null and end_time != ''">
+                and Date(n.n_time) between #{start_time} and #{end_time}
+            </if>
+            <if test="plateName!=''and plateName!=null">
+                and n.n_in_plate_name=#{plateName}
+            </if>
+            <if test="anotherName!=''and anotherName!=null">
+                and u.another_name like CONCAT('%',#{anotherName},'%')
+            </if>
+            <if test="userId!=null and userId!=''">
+                and n.n_uid =#{userId}
+            </if>
+            <if test="plateId!=null and plateId!=''">
+                and n.n_plate_id =#{plateId}
+            </if>
+        </where>
+    </select>
+    <!--后台删除公告-->
+    <delete id="deleteNoticeById" parameterType="java.util.List">
+        delete from notice
+        <where>
+            <if test="ids != null and ids.size()>0">
+                <foreach collection="ids" open="and n_id in (" item="id" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+    <!--后台更新公告-->
+    <update id="updateNoticeById" parameterType="java.util.Map">
+        update notice
+        <set>
+            <if test="nTitle!=null and nTitle!=''">
+                 n_title =#{nTitle},
+            </if>
+            <if test="nContent!=null and nContent!=''">
+                 n_content =#{nContent},
+            </if>
+            <if test="plateName!=''and plateName!=null">
+                n_in_plate_name=#{plateName},
+            </if>
+            <if test="userId!=null and userId!=''">
+                n_uid =#{userId}
+            </if>
+        </set>
+        where n_id=#{nId}
+    </update>
+</mapper>

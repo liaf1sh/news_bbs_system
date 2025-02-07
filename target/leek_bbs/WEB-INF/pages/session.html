@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>对话</title>
+    <link rel="stylesheet" href="/leek_bbs/statics/layui/css/layui.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/bootstrap-3.3.7/css/bootstrap.min.css">
+    <style lang="less">
+        .m-message {
+            padding: 10px 15px;
+            height: 250px;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        .text {
+            display: inline-block;
+            position: relative;
+            padding: 0 10px;
+            max-width: 360px;
+            min-height: 30px;
+            line-height: 2.5;
+            font-size: 12px;
+            text-align: left;
+            word-break: break-all;
+            background-color: #e2e2e2;
+            border-radius: 4px;
+
+        }
+        .m-message ul{
+            padding-left: 0;
+        }
+        ul li {
+            list-style: none;
+            margin-bottom: 15px;
+        }
+        .time {
+            margin: 7px 0;
+            text-align: center;
+        }
+        .time > span {
+            display: inline-block;
+            padding: 0 18px;
+            font-size: 12px;
+            color: #fff;
+            border-radius: 2px;
+            background-color: #dcdcdc;
+        }
+        .avatar {
+            float: left;
+            margin: 0 10px 0 0;
+            border-radius: 3px;
+        }
+        .text:before {
+            content: " ";
+            position: absolute;
+            top: 9px;
+            right: 100%;
+            border: 6px solid transparent;
+            border-right-color: #fafafa;
+        }
+        .self {
+            text-align: right;
+        }
+        .self .avatar {
+            float: right;
+            margin: 0 0 0 10px;
+        }
+        .self .text {
+            /*background-color: #b2e281;*/
+            background-color: #5FB878;
+        }
+
+        .self .text:before {
+            right: inherit;
+            left: 100%;
+            border-right-color: transparent;
+            border-left-color: #b2e281;
+        }
+
+    </style>
+
+</head>
+<body>
+<div class="m-message" id="messageApp">
+    <audio id="audioPlay" src="/leek_bbs/statics/mp3/liaotian.mp3" hidden></audio>
+    <ul v-if="isShowMessage"><!--v-for-start-->
+        <li v-for="item in messageList">
+            <p class="time">
+                <span>{{item.time | formDate}}</span>
+            </p>
+            <div :class="[{ self: judgeOneself(item.srcUser.userId) }]"><img class="avatar" width="30" height="30" :src="'/leek_bbs/'+item.img">
+                <div class="text" v-html="item.content"></div>
+            </div>
+        </li>
+    </ul>
+</div>
+<script src="/leek_bbs/statics/layui/layui.js"></script>
+<script src="/leek_bbs/statics/vue/vue.js"></script>
+<script>Vue.config.productionTip = false</script>
+<script>
+    let tId;
+    let messageList=[];
+    layui.define(['layer','util'],function (exports) {
+       let util = layui.util,
+           layer = layui.layer;
+        let index = layer.load();
+
+        tId = parent.window.getId();
+
+       exports('formDate',function (date) {
+           return util.timeAgo(date, true);
+       });
+        exports('closeLay',function () {
+            layer.close(index);
+        })
+    });
+
+    let chatSession;
+    setTimeout(function (){
+        chatSession = new Vue({
+            el:"#messageApp",
+            data:{
+                messageList:[],
+                isShowMessage:false
+            },
+            methods:{
+                test(){
+                    this.messageList = messageList;
+                },
+                judgeOneself(val){
+                    if (val == tId) {
+                        return false;
+                    }
+                    return true;
+                }
+            },
+            created(){
+                let msg;
+                if (tId != 0){
+                    msg = getCacheMsg();
+                }
+                console.log(msg);
+                if (msg != null){
+                    this.messageList = msg.filter(item => {
+                        return item.tarUser.userId == tId || item.srcUser.userId == tId;
+                    });
+                    //console.log(this.messageList);
+                }
+                this.isShowMessage = true;
+                layui.closeLay();
+            },
+            updated(){
+                loadBottom();
+            },
+            filters:{
+                formDate(val){
+                    return layui.formDate(val);
+                }
+            }
+        });
+    },200);
+    setTimeout(()=>{
+        loadBottom();
+    },300);
+
+    //将消息添加到页面
+    function sendMessage(data,loginUserId) {
+        chatSession.messageList.push(data);
+        let msg = getCacheMsg();
+        let msgList;
+        if (msg != null){
+            msgList = msg;
+        }else {
+            msgList = [];
+        }
+        msgList.push(data);
+        //localStorage.setItem("msgData-"+tId,JSON.stringify(msgList));
+        localStorage.setItem("msgData",JSON.stringify(msgList));
+        if (data.srcUser.userId != loginUserId){
+            let player = document.getElementById("audioPlay");
+            player.play();
+        }
+    }
+
+    // 聊天定位到底部
+    function loadBottom() {
+        let ele = document.getElementById('messageApp');
+        ele.scrollTop = ele.scrollHeight;
+    }
+    
+    function getCacheMsg() {
+        //console.log(tId)
+        //let msgData = JSON.parse(localStorage.getItem("msgData-"+tId));
+        let msgData = JSON.parse(localStorage.getItem("msgData"));
+        return msgData;
+    }
+
+</script>
+</body>
+</html>

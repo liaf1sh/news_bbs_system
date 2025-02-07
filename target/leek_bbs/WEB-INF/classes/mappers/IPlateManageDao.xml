@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lindong.dao.IPlateManageDao">
+
+    <!--根据条件分页查询-->
+    <select id="paging" resultType="plate" parameterType="map">
+        select * from plate
+        <where>
+            <if test="plate_name != null and plate_name != ''">
+                and plate_name like CONCAT('%',#{plate_name},'%')
+            </if>
+            <if test="plate_vest != null and plate_vest != ''">
+                and plate_vest like CONCAT('%',#{plate_vest},'%')
+            </if>
+        </where>
+        limit #{index},#{pageSize}
+    </select>
+    <select id="getCount" parameterType="map" resultType="int">
+        select count(*) from plate
+        <where>
+            <if test="plate_name != null and plate_name != ''">
+                and plate_name like CONCAT('%',#{plate_name},'%')
+            </if>
+            <if test="plate_vest != null and plate_vest != ''">
+                and plate_vest like CONCAT('%',#{plate_vest},'%')
+            </if>
+        </where>
+    </select>
+
+    <!--批量删除数据-->
+    <delete id="deletePlate" parameterType="java.util.List">
+        delete from plate
+        <where>
+            <if test="ids != null and ids.size()>0">
+                <foreach collection="ids" open="and id in (" item="id" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <update id="alterPlate" parameterType="map">
+        update plate
+        <set>
+            <if test="plate_name != null and plate_name!= ''">
+                plate_name=#{plate_name},
+            </if>
+            <if test="plate_photo != null and plate_photo!= ''">
+                plate_photo=#{plate_photo},
+            </if>
+            <if test="plate_vest != null and plate_vest!= ''">
+                plate_vest=#{plate_vest}
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <insert id="addPlate" parameterType="plate">
+        insert into plate(plate_name,plate_photo,plate_vest) values (#{plate_name},#{plate_photo},#{plate_vest})
+    </insert>
+</mapper>

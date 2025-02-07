@@ -1,0 +1,111 @@
+{
+  "homeInfo": {
+    "title": "后台首页",
+    "href": "/leek_bbs/stair/a/b/admin/welcome-1"
+  },
+  "logoInfo": {
+    "title": "【后台管理】",
+    "image": "/leek_bbs/statics/images/common_54_icon.png",
+    "href": "/leek_bbs/stair/a/b/admin/index"
+  },
+  "menuInfo": [
+    {
+      "title": "常规管理",
+      "icon": "fa fa-address-book",
+      "href": "",
+      "target": "_self",
+      "child": [
+        {
+          "title": "后台首页",
+          "href": "",
+          "icon": "fa fa-home",
+          "target": "_self"
+        },
+        {
+          "title": "用户管理",
+          "href": "/leek_bbs/stair/a/b/admin/user-manage",
+          "icon": "fa fa-user",
+          "target": "_self"
+        },
+        {
+          "title": "新闻分类管理",
+          "href": "/leek_bbs/stair/a/b/admin/plate-lists",
+          "icon": "fa fa-file-text",
+          "target": "_self"
+        },
+        {
+          "title": "新闻管理",
+          "href": "",
+          "icon": "fa fa-calendar",
+          "target": "_self",
+          "child": [
+            {
+              "title": "新闻贴管理",
+              "href": "/leek_bbs/stair/a/b/admin/posts-lists",
+              "icon": "fa fa-navicon",
+              "target": "_self"
+            },
+            {
+              "title": "评论管理",
+              "href": "/leek_bbs/stair/a/b/admin/posts_details-lists",
+              "icon": "fa fa-comments-o",
+              "target": "_self"
+            },
+            {
+              "title": "举报管理",
+              "href": "/leek_bbs/stair/a/b/admin/posts_report-lists",
+              "icon": "fa fa-list-alt",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "公告管理",
+          "href": "",
+          "icon": "fa fa-flag-o",
+          "target": "_self",
+          "child": [
+            {
+              "title": "公告管理",
+              "href": "/leek_bbs/stair/a/b/admin/notice-manage",
+              "icon": "fa fa-list-alt",
+              "target": "_self"
+            },
+            {
+              "title": "公告发表",
+              "href": "/leek_bbs/stair/a/b/admin/notice-add",
+              "icon": "fa fa-navicon",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "权限管理",
+          "href": "",
+          "icon": "fa fa-snowflake-o",
+          "target": "",
+          "child": [
+            {
+              "title": "用户角色管理",
+              "href": "/leek_bbs/stair/a/b/admin/user_role-lists",
+              "icon": "fa fa-street-view",
+              "target": "_self"
+            },
+            {
+              "title": "角色管理",
+              "href": "/leek_bbs/stair/a/b/admin/role-lists",
+              "icon": "fa fa-shield",
+              "target": "_self"
+            }
+          ]
+        },
+        {
+          "title": "系统日志",
+          "href": "/leek_bbs/stair/a/b/admin/sys_log-lists",
+          "icon": "fa fa-gears",
+          "target": "_self"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lindong.dao.ILeadUserDao">
+    <resultMap id="UserGradeInfo" type="user">
+        <id column="userId" property="id" ></id>
+        <result column="another_name" property="another_name"></result>
+        <result column="picture" property="picture"></result>
+        <result column="personalized_sign" property="personalized_sign"></result>
+        <association property="experience" javaType="experience">
+            <id column="experienceId" property="id"></id>
+            <result column="user_id" property="user_id"></result>
+            <result column="total_experience" property="total_experience"></result>
+        </association>
+    </resultMap>
+    <!--查看用户资料-->
+    <select id="getUserInfoById" parameterType="Integer" resultMap="UserGradeInfo">
+        select t1.id as userId,t1.another_name,t1.picture,t1.personalized_sign,t2.total_experience from user t1,experience t2 where t1.id=t2.user_id and t1.id= #{userId};
+    </select>
+</mapper>

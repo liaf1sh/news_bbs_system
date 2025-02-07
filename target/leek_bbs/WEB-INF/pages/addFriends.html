@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<link rel="stylesheet" href="/leek_bbs/statics/yu-ui/js_css/yu.css">
+		<link rel="stylesheet" href="/leek_bbs/statics/layui/css/layui.css"/>
+		<script src="/leek_bbs/statics/component/common_import.js"></script>
+		<style>
+			[v-cloak] {
+				display: none;
+			}
+			.layim-add-img img,
+			.layim-add-remark p {
+				margin-bottom: 10px;
+			}
+			.layui-circle {
+				border-radius: 100%;
+			}
+			
+			.layui-layer-page .layui-layer-content {
+				position: relative;
+				overflow: auto;
+			}
+			
+			.layim-add-img {
+				width: 100px;
+				margin-right: 10px;
+				text-align: center;
+			}
+			
+			.layim-add-img,
+			.layim-add-remark,
+			.layui-layim-members li {
+				display: inline-block;
+				*display: inline;
+				*zoom: 1;
+				vertical-align: top;
+				font-size: 14px;
+			}
+			
+			.layui-layer-content {
+				position: relative;
+			}
+			
+			.layim-add-box {
+				margin: 15px;
+				font-size: 0;
+			}
+			
+			.layim-add-remark {
+				width: 250px;
+			}
+			
+			.layim-add-remark .layui-select {
+				width: 100%;
+				margin-bottom: 10px;
+			}
+			
+			.layui-select {
+				padding: 0 10px;
+			}
+			.layim-add-img,
+			.layim-add-remark,
+			.layui-layim-members li {
+				display: inline-block;
+				*display: inline;
+				*zoom: 1;
+				vertical-align: top;
+				font-size: 14px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div  class="layui-layer-content" id="app" v-cloak="">
+			<div class="layim-add-box">
+				<div class="layim-add-img"><img class="layui-circle" :src="'/leek_bbs/'+addUserInfo.picture" width="54px" height="54px">
+					<p>{{addUserInfo.another_name}}</p>
+
+				</div>
+				<div class="layim-add-remark">
+					<p>选择分组</p>
+					<select class="layui-select" id="LAY_layimGroup" v-model="groupSelected" >
+						<option :value="item.group_id" v-for="(item,index) in friendGroups" >{{item.group_name}}</option>
+					</select>
+					<div>附言:</div>
+					<textarea rows="3" lay-size="30" cols="32" style="resize: none;" id="postscript"></textarea>
+				</div>
+				<div><button class="layui-btn" style="float: right;margin: 15px;" @click="addFriend">提交</button></div>
+			</div>
+		</div>
+	</body>
+	<script>
+		var addUserInfo;
+        function child (obj){
+			addUserInfo= obj; //所加好友的基本信息
+        }
+        var app;
+		setTimeout(function () {
+		    app =new Vue({
+                el:"#app",
+                data:{
+                    friendGroups:[], //好友分组数据
+                    addUserInfo:'', //添加好友用户数据
+					userId:'', //登录用户id
+                    groupSelected:'',
+                },
+                methods:{
+                    addFriend(){
+                        axios.post("/leek_bbs/bbs/userFriend/addFriends",{
+                       		userId:this.userId,
+                            groupId:this.groupSelected,
+                            friendId:this.addUserInfo.id,
+                            status:0,
+							postScript:$("#postscript").val(),
+						}).then((response)=>{
+						    console.log(response)
+						   // console.log("这个"+response.data)
+							if(response.data==0){
+                                ui.error("好友申请发送失败,请重试",1500,true)
+							}
+							if(response.data!=0){
+                                ui.success("好友申请已发送",1500,true)
+								setTimeout(function () {
+                                    parent.closeWindow();
+                                },1500)
+							}
+						})
+					},
+                    choose(e){
+                        //this.selectGroup =e.target.value;
+                        //console.log(e.target.value) // 选择项的value
+						var postscript ;
+                        this.groupSelected = e.target.value;
+                        console.log(this.groupSelected)
+                        console.log($("#postscript").val())
+                       // parent.getGroupId(this.groupSelected,postscript);
+                    },
+                    childGroup(userId){
+                        this.addUserInfo=addUserInfo;
+                        axios.get("/leek_bbs/bbs/userFriend/listFriendGroup?userId="+userId).then((response)=>{
+                            //console.log(response.data);
+
+                            this.friendGroups= response.data;
+                            this.groupSelected =response.data[0].group_id;
+                            //console.log(  this.groupSelected)
+                            // this.userFriendGroups = response.data;
+                            //var body = layer.getChildFrame('body', index);
+                            /* var iframe = window['layui-layer-iframe' + index];
+                             iframe.child(response.data);    //将数据传给子页面的child方法*/
+                        })
+                    }
+                },
+                created:function () {
+                    this.userId = window.parent.getUserId();
+                    this.childGroup(this.userId);
+                    //console.log(userInfo)
+                }
+            })
+        },200)
+       /*	setTimeout(function () {
+       	    alert(app.selectGroup)
+            parent.getGroupId(app.selectGroup);
+        },300)*/
+	</script>
+</html>

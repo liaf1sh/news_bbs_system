@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lindong.dao.ISysLogDao">
+
+    <!--根据条件分页查询-->
+    <select id="paging" resultType="sysLog" parameterType="map">
+        select * from sys_log
+        <where>
+            <if test="username != null and username != ''">
+                and username like CONCAT('%',#{username},'%')
+            </if>
+            <if test="operation != null and operation != ''">
+                and operation like CONCAT('%',#{operation},'%')
+            </if>
+            <if test="start_time != null and start_time != '' and end_time != null and end_time != ''">
+                and Date(create_time) between #{start_time} and #{end_time}
+            </if>
+        </where>
+        limit #{index},#{pageSize}
+    </select>
+    <select id="getCount" parameterType="map" resultType="int">
+        select count(*) from sys_log
+        <where>
+            <if test="username != null and username != ''">
+                and username like CONCAT('%',#{username},'%')
+            </if>
+            <if test="operation != null and operation != ''">
+                and operation like CONCAT('%',#{operation},'%')
+            </if>
+            <if test="start_time != null and start_time != '' and end_time != null and end_time != ''">
+                and Date(create_time) between #{start_time} and #{end_time}
+            </if>
+        </where>
+    </select>
+    <!--记录系统操作日志-->
+    <insert id="insertSysLog" parameterType="sysLog" >
+        insert into sys_log
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="username != null">
+                username,
+            </if>
+            <if test="operation != null and operation != ''">
+                operation,
+            </if>
+            <if test="method != null and method != ''">
+                method,
+            </if>
+            <if test="url != null and url != ''">
+                url,
+            </if>
+            <if test="ip != null and ip != ''">
+                ip,
+            </if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="username != null">
+                #{username},
+            </if>
+            <if test="operation != null and operation != ''">
+                #{operation},
+            </if>
+            <if test="method != null and method != ''">
+                #{method},
+            </if>
+            <if test="url != null and url != ''">
+                #{url},
+            </if>
+            <if test="ip != null and ip != ''">
+                #{ip},
+            </if>
+            now()
+        </trim>
+    </insert>
+    <!--批量删除数据-->
+    <delete id="deleteSysLog" parameterType="java.util.List">
+        delete from sys_log
+        <where>
+            <if test="ids != null and ids.size()>0">
+                <foreach collection="ids" open="and id in (" item="id" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+</mapper>

@@ -1,0 +1,220 @@
+/*头部部分*/
+body{
+    margin-top: 0;
+    margin-bottom: 20px;
+    font: 14px/1.5 'Microsoft Yahei','Simsun',Tahoma;
+    color: #444;
+    background: #F3F3F3;
+}
+.navbar {
+    border-radius: 1px;
+}
+.nav-margin-left{
+    margin-left: 120px;
+}
+.navbar-right{
+    margin-right: 70px;
+    margin-top: 13px;
+    font-size: 16px;
+    color: #fff;
+}
+.navbar-right > span > a{
+    color: #fff;
+}
+a:link,a:hover,a:active{
+    text-decoration: none;
+}
+
+/*中间主题部分*/
+.container .row  span  a{
+    /*color: #5d5353;*/
+    color: #333;
+}
+.container .row > span > a:hover,.container .col-sm-8 a:hover{
+    color: #ff6f3d !important;
+}
+.m-mar-left{
+    margin-left: 20px;
+    background-color: #fff;
+}
+.container img{
+    border-radius: 4px;
+    width: 65px;
+    height: 65px;
+}
+.m-col-padding{
+    padding: 16px 0px;
+    background: #fff;
+}
+.m-head{
+    padding: 4px 10px;
+    border-bottom: 1px solid #e5e5e5;
+    background-color: #f5f5f5
+}
+.m-sign{
+    margin: 18px auto;
+    width: 274px;
+    height: 68px;
+    border: 2px solid #ff6f3d;
+    border-radius: 5px;
+    opacity: .9;
+}
+.m-sign .col-sm-6 .col-sm-4 a{
+    color: #fff;
+}
+#signC > a:hover{
+    color: #fff !important;
+}
+.m-count{
+    margin: 18px auto;
+    width: 276px;
+    height: 116px;
+    /*background-color: #fff;*/
+}
+.m-count .row > h5{
+    opacity: .7;
+}
+.m-count .row > h5 > span{
+    font-size: 16px;
+    color: #ff6f3d;
+}
+.layui-tab-card>.layui-tab-title li {
+    margin-right: 10px;
+    margin-left: 0px;
+    padding-left: 46px;
+    padding-right: 65px;
+    font-size: 16px;
+}
+.m-box{
+    margin-top: 50px;
+}
+.m-box .row{
+    margin-left: 20px;
+    margin-top: 20px;
+}
+.m-box ul li{
+    margin-left: 20px;
+    margin-bottom: 10px;
+    padding-top: 8px;
+    width: 295px;
+    height: 36px;
+    line-height: 36px;
+    /*文本不换行*/
+    white-space: nowrap;
+    /*超过部分隐藏*/
+    overflow: hidden;
+    /*超过部分用...代替*/
+    text-overflow: ellipsis;
+    border-top: 1px solid #dcdbdb;
+}
+.m-box .first-li{
+    border: none;
+    padding-top: 4px;
+}
+.m-span-color{
+    color: #ff6f3d;
+}
+.m-border-top{
+    border-top: 4px solid #ccd1d9;
+}
+.m-box a{
+    font-size: 14px;
+    color: #333;
+}
+.m-box a:hover,.navbar-right a:hover{
+    color: #ff6f3d;
+}
+.m-a-ml{
+    margin-left: 10px;
+}
+
+/*解决闪烁*/
+[v-cloak]{
+    display: none;
+}
+
+
+
+/*用户注册,登录弹窗部分*/
+.layui-layer .layui-layer-title{
+    color: #fff;
+    background-color: #89B426;
+}
+.layui-layer form .layui-btn-fluid{
+    width: 60%;
+}
+#Lay-login,#Lay-register,#Lay-pwd{
+    color: #aba9a9;
+    background-color:#363636;
+
+}
+#Lay-register .layui-btn{
+    height: 32px;
+    line-height: 30px;
+}
+.btn-bg{
+    background: #5a822a !important;
+}
+.layui-form-label {
+    width: 100px;
+}
+.layui-layer .layui-input{
+    width: 130%;
+    height:35px;
+    color: #dcdedc;
+    border-style: none;
+    border-color: #2B2B2B;
+    background-color: #2B2B2B;
+}
+.layui-layer .layui-input:focus{
+    border-color: #03a9f4 ;
+    box-shadow: 0 0 12px 4px #03a9f4;
+}
+.layui-layer .layui-input:hover{
+    border:1px solid #03a9f4 !important;
+}
+.navbar-right a{
+    color: #fff;
+}
+.navbar-right .dropdown .dropdown-menu{
+    top: 38px;
+    min-width: 246px;
+    height: 214px;
+    font-size:10px;
+    color:#fff;
+    background: #333;
+}
+.navbar-right .dropdown .dropdown-menu .col-sm-9 a:hover{
+    color: #ff6f3d;
+}
+.navbar-right .dropdown .dropdown-menu .row .col-sm-4:hover{
+    background-color: #ff6f3d;
+}
+.navbar-right a:hover{
+    color: #fff;
+}
+div.layui-layer-hui{
+    background:  #fff !important;
+    opacity: .9 !important;
+    color: #1a1919 !important;
+    border-radius: 8px !important;
+}
+div.layui-layer-hui .layui-layer-content {
+    padding: 8px 23px !important;
+}
+
+
+
+    /*页脚*/
+footer .row{
+    margin-top:60px;
+    padding:20px;
+    text-align: center;
+    font-size: 16px;
+    font-family: '微软雅黑';
+    color: #fff;
+    background-color: #333;
+}
+footer .row > p >span{
+    opacity: .8;
+}

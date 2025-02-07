@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lindong.dao.IPostBrowseCommentDao">
+    <resultMap id="PostsBrowseMap" type="post">
+        <id property="id" column="id"></id>
+        <result column="title" property="title"></result>
+        <result column="user_id" property="user_id"></result>
+        <result column="content" property="content"></result>
+        <result column="browse_count" property="browse_count"></result>
+        <result column="reply_count" property="reply_count"></result>
+        <result column="publish_time" property="publish_time"></result>
+        <result column="first_post" property="first_post"></result>
+        <result column="post_status" property="post_status"></result>
+        <result column="post_heat" property="post_heat"></result>
+        <result column="share_count" property="share_count"></result>
+        <result column="post_grade" property="post_grade"></result>
+        <result column="post_collect" property="post_collect"></result>
+        <result column="post_top" property="post_top"></result>
+        <result column="post_tread" property="post_tread"></result>
+        <result column="post_author" property="post_author"></result>
+        <result column="plate_id" property="plate_id"></result>
+        <result column="picture" property="picture"></result>
+        <result column="total_integral" property="total_integral"></result>
+        <result column="online_status" property="online_status"></result>
+        <collection property="listPosts" ofType="postDetails">
+            <id property="pid" column="pid"></id>
+            <result column="pd_uid" property="pd_uid"></result>
+            <result column="post_id" property="post_id"></result>
+            <result column="seat" property="seat"></result>
+            <result column="reply_time" property="reply_time"></result>
+            <result column="pd_content" property="pd_content"></result>
+            <result column="pd_nickname" property="pd_nickname"></result>
+            <result column="pd_picture" property="pd_picture"></result>
+            <result column="pd_total_integral" property="pd_total_integral"></result>
+            <result column="pd_online_status" property="pd_online_status"></result>
+        </collection>
+    </resultMap>
+    <!--获取指定主题以及所有相关帖子-->
+    <select id="paging" parameterType="java.util.Map" resultMap="PostsBrowseMap">
+        select p.*,pd.*,u.another_name as pd_nickname,u.picture as pd_picture,u.online_status as pd_online_status,ig.total_integral as pd_total_integral
+        from (select t1.*,t2.username,t2.picture,t2.online_status,t3.total_integral from post t1,user t2,integral t3
+        where t1.post_status!=0 and t1.post_status!=6 and t1.user_id=t2.id and t1.user_id=t3.user_id and t1.id=#{post_id}) p
+        left join post_details pd on p.id=pd.post_id
+        left join user u on u.id=pd.pd_uid
+        left join integral ig on pd.pd_uid=ig.user_id
+        <where>
+            <if test="pd_uid != null and pd_uid != ''">
+                pd.pd_uid=#{pd_uid}
+            </if>
+        </where>
+        order by pd.reply_time asc
+        limit #{index},#{pageSize}
+    </select>
+    <!--获取指定主题所有帖子数-->
+    <select id="getCount" parameterType="java.util.Map" resultType="int">
+        select count(*) from post_details
+        <where>
+            <if test="post_id != null and post_id != ''">
+                post_id=#{post_id}
+            </if>
+            <if test="pd_uid != null and pd_uid != ''">
+                and pd_uid=#{pd_uid}
+            </if>
+        </where>
+    </select>
+    <!--根据条件筛选出最新前8条精华主题或最新前8条发表主题或最新前8条被回复主题-->
+    <select id="selectNewestPosts" resultType="post" parameterType="java.util.Map">
+        select id,title,user_id from post
+        <where>
+            post_status!=0 and post_status!=6
+            <if test="post_status != null and post_status != ''">
+                and post_status=#{post_status}
+            </if>
+        </where>
+        order by ${orderBy} desc limit 0,8
+    </select>
+    <!--根据用户id获取主题数-->
+    <select id="getThemeCountById" parameterType="int" resultType="int">
+        select count(*) from post where user_id=#{0}
+    </select>
+    <!--根据用户id获取帖子数-->
+    <select id="getPostsCountById" parameterType="int" resultType="int">
+        select count(*) from post_details where pd_uid=#{0}
+    </select>
+    <!--根据用户id获取用户总经验-->
+    <select id="getExperienceById" parameterType="int" resultType="int">
+        select total_experience from experience where user_id=#{0}
+    </select>
+    <!--根据用户经验获取用户等级,(&lt;=) 等价于(<=) 号-->
+    <select id="getGrade" parameterType="int" resultType="grade">
+        select * from grade where g_condition &lt;= #{0} order by id desc limit 0,1;
+    </select>
+    <!--添加帖子回复数据-->
+    <insert id="insertPostDetails" parameterType="postDetails">
+        insert into post_details(pd_uid,post_id,pd_content,seat,reply_time) values(#{pd_uid},#{post_id},#{pd_content},#{seat},now())
+    </insert>
+    <!--更新主题数据-->
+    <update id="updatePost" parameterType="java.util.Map">
+        update post
+        <set>
+            <if test="browse_count != null and browse_count != ''">
+                browse_count=browse_count+1,
+            </if>
+            <if test="reply_count != null and reply_count != ''">
+                reply_count=reply_count+1,
+            </if>
+            <if test="post_status != null and post_status != ''">
+                post_status=#{post_status},
+            </if>
+            <if test="post_heat != null and post_heat != ''">
+                post_heat=post_heat+1,
+            </if>
+            <if test="share_count != null and share_count != ''">
+                share_count=share_count+1,
+            </if>
+            <if test="post_grade != null and post_grade != ''">
+                post_grade=post_grade+1,
+            </if>
+            <if test="post_collect != null and post_collect != ''">
+                post_collect=post_collect+1,
+            </if>
+            <if test="post_top != null and post_top != ''">
+                post_top=post_top+1,
+            </if>
+            <if test="post_tread != null and post_tread != ''">
+                post_tread=post_tread+1,
+            </if>
+            <if test="plate_id != null and plate_id != ''">
+                plate_id=#{plate_id},
+            </if>
+            <if test="last_reply != null and last_reply != ''">
+                last_reply=#{last_reply},
+            </if>
+            <if test="last_reply_time != null and last_reply_time != ''">
+                last_reply_time=now(),
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <!--查询用户对该主题是否有操作记录-->
+    <select id="selectThemeOperation" parameterType="java.util.Map" resultType="int">
+        select count(*) from post_operation where postId=#{id} and uid=#{uid}
+    </select>
+    <!--插入用户对主题已操作记录-->
+    <insert id="insertThemeOperation" parameterType="int">
+        insert into post_operation(postId,uid) values(#{id},#{uid});
+    </insert>
+
+    <!--查询用户关注记录-->
+    <select id="selectAttention" resultType="int">
+        select count(*) from attention where uid=#{uid} and aid=#{aid}
+    </select>
+    <!--插入关注数据-->
+    <insert id="insertAttention">
+        insert into attention(uid,aid) values(#{uid},#{aid});
+    </insert>
+
+    <!--点击主题,给主题的浏览次数加一 -->
+    <update id="clickAddBrowseCount" parameterType="Integer">
+        update post set browse_count =browse_count+1 where id=#{id};
+    </update>
+
+    <select id="getSearchDatas" parameterType="java.util.Map" resultType="post">
+        select u.picture,p.id,p.user_id,p.post_author,p.title,p.content,p.publish_time from post p,user u
+        <where>
+            u.id=p.user_id
+            <if test="keyParams!=null and keyParams!=''">
+                and CONCAT(p.title,p.content) like CONCAT('%',#{keyParams},'%')
+            </if>
+        </where>
+        and p.post_status!=0 and p.post_status!=6 limit #{pageStart},#{pageSize};
+    </select>
+    <select id="getSearchPostCount" resultType="java.lang.Integer" parameterType="java.util.Map">
+        select count(*) from post p,user u
+        <where>
+            u.id=p.user_id
+            <if test="keyParams!=null and keyParams!=''">
+                and CONCAT(p.title,p.content) like CONCAT('%',#{keyParams},'%')  and p.post_status!=0 and p.post_status!=6;
+            </if>
+        </where>
+    </select>
+</mapper>

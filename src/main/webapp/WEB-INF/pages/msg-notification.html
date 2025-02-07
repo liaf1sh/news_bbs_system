@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Leek_bbs&nbsp;通知中心</title>
+    <link rel="icon" href="/leek_bbs/statics/images/favicon.ico" >
+    <link rel="stylesheet" href="/leek_bbs/statics/yu-ui/js_css/yu.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/layui/css/layui.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/bootstrap-3.3.7/css/bootstrap.min.css">
+    <!-- vue-element插件样式 -->
+    <link rel="stylesheet" href="/leek_bbs/statics/vue/element-ui/index.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/css/head.css">
+    <style>
+        .container .row .col-sm-2 .row{
+            padding-left: 20px;
+        }
+        .m-hover-bg:hover{
+            border-left: 2px solid #ff6f3d;
+            background-color: #f3f3f3;
+        }
+        .m-hover-bg:hover a{
+            color: #ff6f3d;
+        }
+        h5 > a{
+            color: #333;
+        }
+        h5 > a:hover{
+            color: #ff6f3d;
+        }
+        .m-active{
+            border-left: 2px solid #ff6f3d;
+            background-color: #f3f3f3;
+        }
+        .layui-tab-title li:hover{
+            color: #ff6f3d;
+            background-color: #e5e5e5;
+            opacity: .9;
+        }
+        .layui-this{
+            font-weight: bold;
+        }
+        .m-border-bottom{
+            padding-top: 10px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .m-border-bottom:hover{
+            cursor:pointer;
+            color: #ff6f3d;
+            background-color: #f5f5f5;
+        }
+        .layui-tab-content img{
+            width: 14px;
+            height: 13px;
+        }
+        .m-left{
+            margin-left: 4px;
+        }
+        .m-right{
+            float: right;
+            margin-right: 38px;
+        }
+        /*分页部分*/
+        .el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev{
+            width: 85px;
+        }
+        .el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev, .el-pagination.is-background .el-pager li {
+            background-color: #fff;
+        }
+        .el-pagination.is-background .el-pager li:not(.disabled).active {
+            background-color: orange;
+        }
+        .col-sm-8 .layui-tab > .row > ul li{
+            padding: 8px 5px;
+            width: 96%;
+            border-bottom: 1px solid #e5e5e5;
+        }
+       ul li .col-sm-8 > span:first-child{
+            font-size: 10px;
+            opacity: .6;
+        }
+        .layui-tab > .row > ul li a,.layui-row a{
+            color: #1176ce;
+        }
+        .mn-img-size{
+            width: 45px;
+            height:45px;
+        }
+        footer{
+            /*position: fixed;
+            top: 580px;*/
+            margin-top: 140px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <!-- 导航开始 -->
+    <div id="hmc">
+        <head_menu_comp :is_login="isLoginShow" ref="fo"></head_menu_comp>
+    </div>
+    <!-- 导航结束 -->
+    <!-- 中间主体部分 -->
+    <div class="container" id="msgApp" v-show="isShowInform">
+        <div class="row">
+            <span style="opacity: .8;">
+                <a href="/leek_bbs/skipPage/index"><span class="glyphicon glyphicon-home"></span></a>&nbsp;>&nbsp;
+                <a href="/leek_bbs/skipPage/msg-notification">通知</a>&nbsp;>&nbsp;
+                <span>消息</span>
+            </span>
+           <!-- <span style="float: right;"><a href="javascript:;">我的收藏</a></span>-->
+        </div>
+        <div class="row" style="margin-top: 20px;">
+            <div class="col-sm-2" style="padding-bottom:20px;border: 1px solid #e5e5e5;background-color: #fff;">
+                <div class="row" style="border-bottom: 1px solid #e5e5e5;"><h4>通知</h4></div>
+<!--                <div class="row m-hover-bg m-active" id="userBtn"><h5><a href="javascript:;">私人消息</a></h5></div>-->
+                <div class="row m-hover-bg" id="postsBtn"><h5><a href="javascript:;">我的帖子</a></h5></div>
+<!--                <div class="row m-hover-bg" id="friendApply"><h5><a href="javascript:;">好友申请</a></h5></div>-->
+                <div class="row m-hover-bg" id="plateBtn"><h5><a href="javascript:;">系统提醒</a></h5></div>
+            </div>
+            <div class="col-sm-8" style="margin-left:30px;border: 1px solid #e5e5e5;background-color: #fff;" v-cloak="">
+<!--                <div class="layui-tab" id="tab-user" v-if="isShowPrivate" >-->
+<!--                    <div class="row" style="margin-top: 20px;width: 94%;background-color: #fff;">-->
+<!--                        <ul style="padding: 0 15px;width: 112%;" v-if="privateMsgList.length > 0">-->
+<!--                            <li v-for="item in privateMsgList">-->
+<!--                                <div class="row" style="margin-left: 8px;">-->
+<!--                                    <div class="col-sm-1"><input type="checkbox" :checked="collectIds.indexOf(item.time)!=-1" @click="isCheck(item.time)"></div>-->
+<!--                                    <div class="col-sm-1"><a href="javascript:;"><img :src="'/leek_bbs/'+item.img" class="img-circle mn-img-size" alt=""></a></div>-->
+<!--                                    <div class="col-sm-7" style="margin-left: 15px;">-->
+<!--                                        <span style="font-size:12px;opacity: .5">{{item.time | formDate}}</span>-->
+<!--                                        <h5>-->
+<!--                                            <span><a :href="'/leek_bbs/skipPage/personal?id='+item.user_id">{{item.srcUser.username}}</a>&nbsp;&nbsp;</span>-->
+<!--                                            <span>发来一条消息</span>&nbsp;&nbsp;-->
+<!--                                            <span style="font-size: 12px" v-html="item.content">-->
+<!--                                            </span>-->
+<!--                                        </h5>-->
+<!--                                    </div>-->
+<!--                                    <div class="col-sm-2"><a href="javascript:;" style="display:block;float:right;margin-right:-55px;line-height: 54px;" @click="deleteCollects(item.srcUser.userId)">删除</a></div>-->
+<!--                                </div>-->
+<!--                            </li>-->
+<!--                        </ul>-->
+<!--                        <h3 v-else align="center" style="opacity: .7;">暂无私聊消息</h3>-->
+<!--                    </div>-->
+<!--                </div>-->
+                <div class="layui-tab" id="tab-posts" v-if="isShowPost">
+                    <div class="row">
+                       <ul v-if="isCheckBtn">
+                           <li v-for="item in newestReply" style="margin-left: 10px;">
+                               <div class="row" style="margin-left: 8px;">
+                                   <div class="col-sm-1"><input type="checkbox" :checked="collectIds.indexOf(item.reply.pid)!=-1" @click="isCheck(item.reply.pid)"></div>
+                                   <div class="col-sm-1" style="padding: 0"><img :src="'/leek_bbs/'+item.reply.pd_picture" class="img-circle mn-img-size" alt=""></div>
+                                   <div class="col-sm-8">
+                                       <span>{{item.reply.reply_time | formDate}}</span><br>
+                                       <h5 style="font-size: 12px">
+                                           <span><a :href="'/leek_bbs/skipPage/personal?id='+item.reply.pd_uid">{{item.reply.pd_nickname}}</a>&nbsp;</span>
+                                           <span>回复了您的发布</span>&nbsp;
+                                           <span><a :href="'/leek_bbs/skipPage/blogPage?theme_id='+item.id">{{item.title}}</a></span>
+                                       </h5>
+                                   </div>
+                                   <div class="col-sm-2"><a href="javascript:;" style="margin-left: 25px;line-height: 54px;" @click="deleteCollects(item.reply.pid)">删除</a></div>
+                               </div>
+                           </li>
+                       </ul>
+                        <h3 v-else align="center" style="opacity: .7;">暂无评论提醒内容</h3>
+                    </div>
+                </div>
+<!--                <div class="layui-tab" id="tab-friendApply" v-if="isShowApply">-->
+<!--                    <div class="row" style="margin-top: 20px;width: 94%;background-color: #fff;">-->
+<!--                        <ul style="padding: 0 15px;width: 112%;" v-if="total > 0">-->
+<!--                            <li v-for="item in friendApply">-->
+<!--                                <div class="row" style="margin-left: 8px;">-->
+<!--                                    <div class="col-sm-1"><input style="margin-top: 20px;" type="checkbox" :checked="collectIds.indexOf(item.id)!=-1" @click="isCheck(item.id)"></div>-->
+<!--                                    <div class="col-sm-1"><a href="javascript:;"><img :src="'/leek_bbs/'+item.user.picture" class="img-circle mn-img-size" alt=""></a></div>-->
+<!--                                    <div class="col-sm-6" style="margin-left: 15px;">-->
+<!--                                        <span><a :href="'/leek_bbs/skipPage/personal?id='+item.user_id">{{item.user.another_name}}</a>&nbsp;&nbsp;</span><span style="opacity: .5">刚刚</span><br>-->
+<!--                                        <h5 style="font-size: 12px">-->
+<!--                                            <span>申请添加你为好友 </span>&emsp;-->
+<!--                                            <span style="opacity: .5">附言: {{item.postscript}}</span>-->
+<!--                                        </h5>-->
+<!--                                    </div>-->
+<!--                                    <div class="col-sm-3" style="margin-left: 25px;line-height: 42px;">-->
+<!--                                        <div v-if="item.status == 0" style="margin-left: 48px;">-->
+<!--                                            <button class="layui-btn layui-btn-sm layui-btn-success" @click="agree(item,1)">同意</button>-->
+<!--                                            <button class="btn btn-sm btn-default" @click="agree(item,2)">拒绝</button>-->
+<!--                                        </div>-->
+<!--                                        <span v-else-if="item.status == 1" style="margin-left:62px;opacity: .6">已同意</span>-->
+<!--                                        <span v-else style="margin-left:62px;opacity: .6">已拒绝</span>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </li>-->
+<!--                        </ul>-->
+<!--                        <h3 v-else align="center" style="opacity: .7;">暂无好友申请提醒内容</h3>-->
+<!--                    </div>-->
+<!--                </div>-->
+                <div class="layui-tab" id="tab-plate" v-if="isShowSys">
+                    <div class="row" style="margin-left: 20px;margin-top: 20px;width: 94%;background-color: #fff;">
+                        <ul v-if="isCheckBtn">
+                            <li v-for="item in sysWarn" style="margin-left: -8px;">
+                                <div class="row" style="margin-left: 8px;">
+                                    <div class="col-sm-1"><input type="checkbox" :checked="collectIds.indexOf(item.id)!=-1" @click="isCheck(item.id)"></div>
+                                    <div class="col-sm-8">
+                                        <span style="font-size: 14px;opacity: 1">{{item.title}}</span>&emsp;
+                                        <span style="font-size: 12px;">{{item.w_time | formDate}}</span>
+                                        <h5 style="font-size: 13px">
+                                            {{item.content}}
+                                        </h5>
+                                    </div>
+                                    <div class="col-sm-2"><a href="javascript:;" style="margin-left: 25px;line-height: 54px;" @click="deleteCollects(item.id)">删除</a></div>
+                                </div>
+                            </li>
+                        </ul>
+                        <h3 v-else align="center" style="opacity: .7;">暂无系统消息提醒</h3>
+                    </div>
+                </div>
+                <!--分页部分-->
+                <div class="layui-row" style="float:right;margin: 8px 0 2px;" v-show="isShowPaging">
+                    <div>
+                        <el-pagination
+                                background
+                                @current-change="getNewestReply"
+                                :current-page.sync="pageNo"
+                                :page-size="pageSize"
+                                layout="prev, pager, next, jumper"
+                                prev-text="上一页"
+                                next-text="下一页"
+                                :total="total">
+                        </el-pagination>
+                    </div>
+                </div>
+                <div class="layui-row" v-show="isCheckBtn">
+                    <a href="javascript:;" style="margin-left: 22px;" @click="checkAll">全选</a> <button style="margin: 12px 10px;" class="layui-btn layui-btn-sm layui-btn-danger" @click="deleteCollects()">删除选中内容</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚部分 -->
+    <footer>
+        <div class="row">
+            <p>
+                <span>20203631王瑜-20203638丁乐陶</span>
+<!--                <span>版权所有&nbsp;All Rights Reserved.</span>-->
+            </p>
+        </div>
+    </footer>
+</div>
+<script src="/leek_bbs/statics/component/common_import.js"></script>
+<!-- vue-element插件 -->
+<script src="/leek_bbs/statics/vue/element-ui/index.js"></script>
+<script src="/leek_bbs/statics/component/head_menu.js"></script>
+<script src="/leek_bbs/statics/js/my_project_msg.js"></script>
+<script>
+    var msgApp = new Vue({
+        el:"#msgApp",
+        data:{
+            privateMsgList:[],
+            newestReply:[],
+            friendApply:[],
+            sysWarn:[],
+            isShowPrivate:true,
+            isShowPost:false,
+            isShowApply:false,
+            isShowSys:false,
+            isShowPaging:false,
+            isShowInform:false,
+            pageNo:1,
+            pageSize:10,
+            total:0,
+            collectIds:[],  //存放选中id
+            isCheckAll:false,
+            isCheckBtn:false,
+            //isStatus:true
+        },
+        methods:{
+            getNewestReply(){
+               axios.post('/leek_bbs/bbs/notification/selectNewestReply',{
+                   uid:userInfo.id,
+                   pageNo:this.pageNo,
+                   pageSize: this.pageSize
+               }).then(response => {
+                   let res = response.data;
+                   this.newestReply = [];
+                   res.data.forEach(posts => {
+                       posts.listPosts.forEach(item => {
+                           this.newestReply.push({id:posts.id,title:posts.title,reply:item});
+                       })
+                   });
+                   this.total = res.total;
+                   this.changMethod();
+               }).catch(error => {
+                   ui.alert("获取数据失败",3000,true);
+                   console.log(error);
+               })
+           },
+            getFriendApply(){
+                axios.post('/leek_bbs/bbs/notification/listFriendApply',{
+                    uid:userInfo.id,
+                    pageNo:this.pageNo,
+                    pageSize:this.pageSize
+                }).then(response => {
+                    let data = response.data;
+                    this.friendApply = data.lists;
+                    this.total = data.total;
+                    this.changMethod();
+                }).catch(error => {
+                    ui.alert("获取数据失败",3000,true);
+                    console.log(error);
+                })
+            },
+            getSysWarn(){
+                axios.post('/leek_bbs/bbs/notification/listSysWarn',{
+                    uid:userInfo.id,
+                    pageNo:this.pageNo,
+                    pageSize:this.pageSize
+                }).then(response => {
+                    let data = response.data;
+                    this.sysWarn = data.data;
+                    this.total = data.total;
+                    this.changMethod();
+                }).catch(error => {
+                    ui.alert("获取数据失败",1500,true);
+                    console.log(error);
+                })
+            },
+            checkAll(){
+                this.collectIds = [];
+                this.isCheckAll = !this.isCheckAll;
+                if (this.isCheckAll){
+                    if (this.isShowPost){   //帖子评论提醒
+                        let data = this.newestReply;
+                        data.forEach(item => {
+                            this.collectIds.push(item.reply.pid);
+                        })
+                    } else if (this.isShowApply){   //好友申请
+                        this.friendApply.forEach(item => {
+                            this.collectIds.push(item.id);
+                        })
+                    }else if (this.isShowPrivate){  //私聊消息
+                        this.privateMsgList.forEach(item => {
+                            this.collectIds.push(item.time);
+                        })
+                    }else{      //系统提醒
+                        this.sysWarn.forEach(item => {
+                            this.collectIds.push(item.id);
+                        })
+                    }
+                }
+            },
+            isCheck(collectId){
+                let idIndex = this.collectIds.indexOf(collectId);   //返回该id所在位置索引
+                if (idIndex != -1){
+                    //如果已包含了该id,则去除(变为非选中状态)
+                    this.collectIds.splice(idIndex, 1);
+                }else {
+                    this.collectIds.push(collectId);
+                }
+            },
+            deleteCollects(id){
+                console.log(this.collectIds);
+                if (id != null){
+                    this.collectIds.push(id);
+                }
+                if (this.collectIds.length > 0){
+                    let _this = this;
+                    ui.confirm('你确认要删除吗？',function(z){
+                        if(z){
+                            if (_this.isShowPost){
+                                _this.deletePostReply();
+                            }else if (_this.isShowApply) {
+                                _this.deleteApply();
+                            }else if (_this.isShowPrivate) {
+                                //let arr = _this.privateMsgList;
+                                let arr = JSON.parse(localStorage.getItem(`msgData`));
+                                for (let i=0;i<arr.length;i++) {
+                                    for (let j=0;j<_this.collectIds.length;j++){
+                                        if (arr[i].time==_this.collectIds[j]){
+                                           arr.splice(i,1);
+                                        }
+                                    }
+                                }
+                                localStorage.setItem(`msgData`,JSON.stringify(arr));
+                                ui.success("删除成功",2000,true);
+                                getPrivateMsg();
+                            }else {
+                                _this.deleteSysWarn();
+                            }
+                        }else {
+                            _this.isCheck(id);
+                        }
+                    });
+                } else {
+                    ui.alert("请选择您要删除的内容");
+                }
+            },
+            agree(data,num){
+                if (num == 1) {     //同意申请
+                    layui.openAddFriend(data);
+                }else {         //拒绝申请
+                    axios.post('/leek_bbs/bbs/userFriend/refuseApply',{
+                        id:data.id,
+                        status:2
+                    }).then(result => {
+                        let data = result.data;
+                        layer.closeAll();
+                        if (data.code == "500020") {
+                            ui.success("已拒绝好友申请",2000,true);
+                            msgApp.getFriendApply();
+                        }else {
+                            ui.alert(data.msg,2000,true);
+                        }
+                    }).catch(error => {
+                        console.log(error);
+                    })
+                }
+                //this.isStatus = false;
+            },
+            changMethod(){
+                console.log(this.total + "");
+                if (Math.ceil(this.total / this.pageSize) > 1) {      //控制页面显示
+                    this.isShowPaging = true;
+                }else {
+                    this.isShowPaging = false;
+                }
+                if (this.total > 0){      //控制删除按钮显示
+                    this.isCheckBtn = true;
+                }else {
+                    this.isCheckBtn = false
+                }
+            },
+            deletePostReply(){
+                axios.post('/leek_bbs/bbs/notification/alterReply',this.collectIds).then(response => {
+                    let data = response.data;
+                    if (data.code == "500020"){
+                        ui.success("删除成功",2000,true);
+                        this.newestReply = [];
+                        this.getNewestReply();
+                        this.collectIds = [];
+                    } else {
+                        ui.error(data.msg,2000,true);
+                    }
+                }).catch(error => {
+                    console.log(error);
+                })
+            },
+            deleteApply(){
+                axios.post('/leek_bbs/bbs/notification/alterApply',this.collectIds).then(response => {
+                    let data = response.data;
+                    if (data.code == "500020"){
+                        ui.success("删除成功",2000,true);
+                        this.getFriendApply();
+                        this.collectIds = [];
+                    } else {
+                        ui.error(data.msg,2000,true);
+                    }
+                }).catch(error => {
+                    console.log(error);
+                })
+            },
+            deleteSysWarn(){
+                axios.post('/leek_bbs/bbs/notification/deleteSysWarnList',this.collectIds).then(response => {
+                    let data = response.data;
+                    if (data.code == "500020"){
+                        ui.success("删除成功",2000,true);
+                        this.getSysWarn();
+                        this.collectIds = [];
+                    } else {
+                        ui.error(data.msg,2000,true);
+                    }
+                }).catch(error => {
+                    console.log(error);
+                })
+            }
+        },
+        filters:{
+            formDate(val){
+                return layui.formDate(val);
+            }
+        }
+    });
+
+    function getPrivateMsg() {
+        if (userInfo != null){
+            msgApp.isShowInform = true;
+            let msg = JSON.parse(localStorage.getItem(`msgData`));
+            if (msg != null && msg != ''){
+                msgApp.privateMsgList = msg.filter(item => {
+                    return item.status != null
+                });
+                console.log("00000000"+msgApp.privateMsgList.length);
+                //msgApp.privateMsgList = JSON.parse(msg);
+                msgApp.total = msgApp.privateMsgList.length;
+                msgApp.changMethod();
+            }else {
+                msgApp.total = 0;
+                msgApp.changMethod();
+            }
+        } else {
+            layui.login();
+        }
+    }
+
+    layui.define(['layer','util'],function (exports) {
+        let util = layui.util,
+            layer = layui.layer;
+
+        exports('formDate',function (time) {
+            //return util.timeAgo(time, true);
+            return util.toDateString(time, 'yyyy-MM-dd HH:mm:ss');
+        });
+
+        exports('openAddFriend',function (data) {
+            console.log(data);
+            layer.open({
+                type: 1
+                ,title:'添加好友'
+                ,shade: 0.3
+                ,content: `<div class="layui-row">
+                            <div class="layui-col-sm2" id="left-info" style="margin: 20px 15px;"></div>
+                            <div class="layui-col-sm6" style="margin: 22px 30px;">
+                                <p>选择分组</p>
+                                <select id="groupSelect" class="layui-select" style="width: 100%;">
+                                </select>
+                            </div>
+                        </div>`
+                ,area: ['415px', '280px']
+                ,resize:false //是否可以伸拉
+                ,btn: ['确定', '取消']
+                ,yes: function(index, layero){
+                    let group_id = $("#groupSelect").val();
+                    axios.post('/leek_bbs/bbs/userFriend/consentApply',{
+                        id:data.id,
+                        userId:userInfo.id,
+                        groupId:group_id,
+                        friendId:data.user_id,
+                        status:1,
+                        postScript:"",
+                    }).then(result => {
+                        let data = result.data;
+                        layer.closeAll();
+                        if (data.code == "500020") {
+                            ui.success("好友添加成功",2000,true);
+                            msgApp.getFriendApply();
+                        }else {
+                            ui.alert(data.msg,2000,true);
+                        }
+                    }).catch(error => {
+                        console.log(error);
+                    })
+
+                }
+                ,btn2: function(index, layero){
+                    //return false 开启该代码可禁止点击该按钮关闭
+                }
+                ,success:function (layero,index) {
+                    $("#left-info").append(`<img width="75" height="75" src="/leek_bbs/${data.user.picture}" class="img-circle"><p style="margin-left: 10px">${data.user.another_name}</p>`);
+                    axios.get("/leek_bbs/bbs/userFriend/listFriendGroup?userId="+userInfo.id).then((response)=>{
+                        let res = response.data;
+                        res.forEach(item => {
+                            let str = `<option value="${item.group_id}">${item.group_name}</option>`
+                            $("#groupSelect").append(str);
+                        })
+                    })
+                }
+            })
+        });
+
+        setTimeout(()=>{
+            getPrivateMsg();
+        },200);
+    });
+
+
+    function  getUserId() {
+        return userInfo.id;
+    }
+    function closeWindow() {
+        layer.closeAll();
+    }
+</script>
+</body>
+</html>

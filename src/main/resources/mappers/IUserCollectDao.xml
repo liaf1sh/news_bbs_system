@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lindong.dao.IUserCollectDao">
+    <insert id="insertUserCollect" parameterType="userCollect">
+        insert into u_collect values (null,#{u_id},#{all_id},#{title},#{source_plate},now(),#{type})
+    </insert>
+    <select id="selectCollectCountByMap" parameterType="java.util.Map" resultType="int">
+        select count(*) from u_collect where u_id=#{u_id} and all_id=#{id} and type=#{type}
+    </select>
+    <!--根据条件获取收藏数据-->
+    <select id="paging" parameterType="java.util.Map" resultType="userCollect">
+        select * from u_collect
+        <where>
+            <if test="uid != null and uid != ''">
+                u_id=#{uid}
+            </if>
+            <if test="type != null and type != ''">
+                and type=#{type}
+            </if>
+        </where>
+        limit #{index},#{pageSize}
+    </select>
+    <select id="getCount" parameterType="java.util.Map" resultType="int">
+        select count(*) from u_collect
+        <where>
+            <if test="uid != null and uid != ''">
+                u_id=#{uid}
+            </if>
+            <if test="type != null and type != ''">
+                and type=#{type}
+            </if>
+        </where>
+    </select>
+    <!--根据List中的id集合实现批量删除-->
+    <delete id="deleteCollect" parameterType="java.util.List">
+        delete from u_collect
+        <where>
+            <if test="ids != null and ids.size()>0">
+                <foreach collection="ids" open="and id in (" item="id" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+</mapper>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lindong.dao.IRankDao">
+    <resultMap id="IntegralMap" type="user">
+        <id property="id" column="id"/>
+        <result property="another_name" column="another_name"/>
+        <result property="picture" column="picture"/>
+        <association property="integral" javaType="integral">
+            <id property="id" column="id"/>
+            <result property="user_id" column="user_id"/>
+            <result property="total_integral" column="total_integral"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="selectPlateTodayMap" type="plate">
+        <id property="id" column="id"></id>
+        <result column="plate_name" property="plate_name"></result>
+        <association property="todayTotalTheme" column="id" javaType="java.lang.Integer" select="getTodayTheme">
+            <result property="todayTotalTheme" column="todayTotalTheme"></result>
+        </association>
+    </resultMap>
+
+    <select id="paging" resultMap="IntegralMap" parameterType="map">
+      select u.another_name,u.picture,i.total_integral,u.id
+      from user u left join integral i
+      on u.id = i.user_id
+      order by i.total_integral desc
+      limit #{index},#{pageSize};
+    </select>
+
+    <select id="experienceByuserId" resultType="user" parameterType="map">
+        select u.another_name,u.picture,u.id,e.total_experience,u.id
+        from user u left join  experience e
+        on u.id=e.user_id
+        order by e.total_experience desc
+        limit #{index},#{pageSize};
+    </select>
+    <select id="replyByplateId" resultType="post" parameterType="map">
+        select pl.plate_name,p.title,p.post_author,p.publish_time,p.reply_count,p.id
+        from plate pl left join post p
+        on pl.id =p.plate_id
+        order by p.reply_count desc
+        limit #{index},#{pageSize};
+    </select>
+    <select id="browseByplateId" resultType="post" parameterType="map">
+        select pl.plate_name,p.title,p.post_author,p.publish_time,p.browse_count,p.id
+        from plate pl left join post p
+        on pl.id =p.plate_id
+        order by p.browse_count desc
+        limit #{index},#{pageSize};
+    </select>
+    <select id="collectByplateId" resultType="post" parameterType="map">
+        select pl.plate_name,p.title,p.post_author,p.publish_time,p.post_collect,p.id
+        from plate pl left join post p
+        on pl.id =p.plate_id
+        order by p.post_collect desc
+        limit #{index},#{pageSize};
+    </select>
+    <select id="shareByplateId" resultType="post" parameterType="map">
+        select pl.plate_name,p.title,p.post_author,p.publish_time,p.share_count,p.id
+        from plate pl left join post p
+        on pl.id =p.plate_id
+        order by p.share_count desc
+        limit #{index},#{pageSize};
+    </select>
+    <select id="heatByplateId" resultType="post" parameterType="map">
+        select pl.plate_name,p.title,p.post_author,p.publish_time,p.post_heat,p.id
+        from plate pl left join post p
+        on pl.id =p.plate_id
+        order by p.post_heat desc
+        limit #{index},#{pageSize};
+    </select>
+    <select id="themeByplateId" resultType="plate" parameterType="map">
+        select id,plate_name,theme
+        from plate
+        order by theme desc
+        limit #{index},#{pageSize};
+    </select>
+    <select id="postsByplateId" resultType="plate" parameterType="map">
+        select id,plate_name,posts
+        from plate
+        order by posts desc
+        limit #{index},#{pageSize};
+    </select>
+    <select id="postsByuserId" resultType="user" parameterType="map">
+        select count(*) as posts, u.another_name,u.picture,u.id
+          from post p left join user u
+            on u.id =p.user_id
+            group by user_id
+            order by posts desc
+            limit #{index},#{pageSize};
+    </select>
+    <select id="logsByuserId" resultType="user" parameterType="map">
+       select count(*) as log, u.another_name,u.picture,u.id
+        from u_log l left join user u
+        on l.u_id =u.id
+          group by u_id
+        order by log desc
+          limit #{index},#{pageSize};
+    </select>
+
+    <select id="timeByuserId" resultMap="selectPlateTodayMap">
+      select id,plate_name,plate_photo from plate limit 0,10;
+    </select>
+    <select id="getCount" resultType="user" parameterType="integer">
+        select count(*) from user;
+    </select>
+
+    <select id="getTodayTheme" resultType="int">
+        select count(*) as todayTotalTheme from post where plate_id=#{id} and DATEDIFF(publish_time,NOW())=0
+    </select>
+</mapper>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lindong.dao.IAttentionDao">
+
+    <!--获取关注人-->
+    <select id="paging" parameterType="java.util.Map" resultType="user">
+        select u.id,u.username,u.another_name,u.picture
+        from attention a,user u
+        <where>
+            a.aid=u.id
+            <if test="uid != null and uid != ''">
+                and a.uid=#{uid}
+            </if>
+        </where>
+        limit #{index},#{pageSize}
+    </select>
+    <!--关注人中记录数-->
+    <select id="getCount" parameterType="java.util.Map" resultType="int">
+        select count(*)
+        from attention a,user u
+        <where>
+            a.aid=u.id
+            <if test="uid != null and uid != ''">
+                and a.uid=#{uid}
+            </if>
+        </where>
+    </select>
+    <!--关注人帖子最新前20条动态-->
+    <select id="getCarePosts" parameterType="int" resultType="post">
+        select a.uid,u.another_name as post_author,u.picture,p.id,p.user_id,p.title,p.content,p.publish_time
+        from attention a left join user u on a.aid=u.id
+        left join post p on a.aid=p.user_id
+        where a.uid=#{0} and p.post_status!=0 and p.post_status!=6
+        order by publish_time desc
+        limit 0,20
+    </select>
+    <delete id="deleteAttention" >
+        delete from attention
+        <where>
+            uid=#{uid}
+            <if test="aid != null and aid!= ''">
+                and aid=#{aid}
+            </if>
+        </where>
+    </delete>
+
+    <select id="selectCare" parameterType="map" resultType="int">
+        select count(*) from attention where uid=#{uid} and aid=#{aid}
+    </select>
+</mapper>

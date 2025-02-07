@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<link rel="stylesheet" href="/leek_bbs/statics/layui/css/layui.css">
+	<link rel="stylesheet" href="/leek_bbs/statics/bootstrap-3.3.7/css/bootstrap.min.css">
+	<style>
+		.active{
+			background-color: #EEE;
+		}
+		.active a {
+			font-weight: bold;
+			color: #ff6f3d;
+		}
+		.bor{
+			border: 1px solid #E5E5E5;
+		}
+		#app div li:hover {
+			background-color: #EEE;
+			color: #666;
+			font-weight: 700;
+		}
+
+		#app div li a:visited {
+			background-color: #EEE;
+		}
+		a:link,a:hover,a:active{
+			text-decoration: none;
+		}
+		a{
+			font-size: 14px;
+			color: #333;
+		}
+		ul li:hover a{
+			color: #ff6f3d;
+		}
+		ul > li{
+			padding: 5px;
+		}
+	</style>
+</head>
+<body>
+	<div class="layui-container">
+		<div class="layui-row">
+			<div class="layui-col-md10 layui-col-xs10">
+				<p style="margin: 10px 10px;margin-left: 0px;">新闻论坛
+					<a href="javascript:;">[进入分类]</a>
+				</p>
+			</div>
+			<div class="layui-colmd2 layui-col-xs2" style="padding-top: 10px;">
+				<button class="layui-btn layui-btn-primary layui-btn-xs layui-btn-warm" style="float: right" id="btnEdit">发帖子</button>
+			</div>
+		</div>
+		<div class="layui-row" id="app" v-cloak>
+			<div class="layui-col-xs4 layui-col-md4 bor" style="height: 300px">
+				<ul v-cloak>
+					<li v-for="(item,index) in supClassifies" @click="showDetails(index)">
+						<a href="javascript:;" >
+							{{item}}
+							<span class="layui-icon layui-icon-triangle-r" style="font-size:10px; float: right"></span>
+						</a>
+					</li>
+				</ul>
+			</div>
+			<div class="layui-col-xs4 layui-col-md4 bor" style="height: 300px">
+				<ul v-cloak>
+					<li v-for="(item,index) in showdetails" @click="changePlate(index)" :class="getStyle(index)">
+						<a href="javascript:;" >{{item}}</a>
+					</li>
+				</ul>
+			</div>
+			<div class="layui-col-xs4 layui-col-md4 bor" style="height: 300px">
+				<!--<button class="layui-btn layui-btn-primary layui-btn-xs layui-btn-warm" style="float: right">发帖子</button>-->
+			</div>
+		</div>
+	</div>
+
+	<script src="/leek_bbs/statics/component/common_import.js"></script>
+	<script>
+        var app = new Vue({
+            el:"#app",
+            data:{
+                supClassifies:["常用板块","校园专区","交流与讨论专区","论坛事务专区"],
+                showdetails:'',		//展示的数据
+                showDetailsPlateIds:'',	//展示板块的id
+                details0:["校园趣事","游戏交流","告白墙","兼职","学校资源共享","休闲灌水"],
+                details0PlateIds:[3,4,5,6,7,12],  //常用版块的版块id
+                details1:[],			//校园专区版块的版块名称
+                details1PlateIds:[],  //校园专区版块的版块id
+                details2:[],			//交流与讨论专区版块的版块名称
+                details2PlateIds:[],  //交流与讨论专区版块的版块id
+                details3:[],			//论坛事务专区版块的版块名称
+                details3PlateIds:[],  //论坛事务专区版块的版块id
+				plateId:'',		//所选版块id
+                countInit:'', //选项id
+            },
+            methods:{
+                changePlate(index){
+                  this.plateId= this.showDetailsPlateIds[index];
+				  this.countInit = index;
+				},
+                showDetails(index){
+                    if (index==0){
+                        this.showdetails=this.details0;
+                        this.showDetailsPlateIds =this.details0PlateIds;
+                        this.countInit=0;
+                    }else if(index==1){
+                        this.showdetails=this.details1;
+                        this.showDetailsPlateIds =this.details1PlateIds;
+                        this.countInit=0;
+                    }else if(index==2){
+                        this.showdetails=this.details2;
+                        this.showDetailsPlateIds =this.details2PlateIds;
+                        this.countInit=0;
+                    }else if(index==3){
+                        this.showdetails=this.details3;
+                        this.showDetailsPlateIds =this.details3PlateIds;
+                        this.countInit=0;
+                    }
+                    this.plateId=this.showDetailsPlateIds[0]; //初始化版块
+                },
+                initPlate(){
+                    axios.get('/leek_bbs/bbs/plate/findAll').then(response => {
+
+                        let data = response.data;
+                        data.forEach(item => {
+                            if (item.plate_vest.indexOf("校园专区") != -1) {
+                                this.details1.push(item.plate_name);
+                                this.details1PlateIds.push(item.id)
+                            }else if (item.plate_vest.indexOf("交流与讨论") != -1){
+                                this.details2.push(item.plate_name);
+                                this.details2PlateIds.push(item.id)
+                            } else {
+                                this.details3.push(item.plate_name);
+                                this.details3PlateIds.push(item.id)
+                            }
+                        })
+                        console.log(this.details1PlateIds)
+                        console.log(this.details2PlateIds)
+                        console.log(this.details3PlateIds)
+						console.log(this.showDetailsPlateIds)
+                    })
+                },
+				getStyle(index){
+                    return {active:this.countInit==index};
+				}
+            },
+            mounted(){
+                this.showDetails(0);
+                this.initPlate();
+            }
+        });
+		$("#btnEdit").click(function () {
+            var index = parent.layer.getFrameIndex(window.name); //获取上一层弹出层的索引
+            parent.layer.close(index);	//关闭上一层弹出层
+			//parent.window.layui.checkUserLogin(); //如果userInfo为空则直接跳转至登录页面
+			console.log("111"+app.plateId)
+			parent.window.layui.openSendPost(app.plateId);  //userInfo不为空,直接跳转发帖页面
+        })
+	</script>
+
+</body>
+</html>

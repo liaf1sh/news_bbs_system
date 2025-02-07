@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lindong.dao.IPostShareDao">
+    <!--根据条件查询分享表中是否存在该主题-->
+    <select id="selectPostShareExist" parameterType="java.util.Map" resultType="int">
+        select count(*) from post_share where user_id=#{user_id} and post_id=#{post_id}
+    </select>
+
+    <insert id="insertPostShare" parameterType="java.util.Map">
+        insert into post_share values (null,#{user_id},#{post_id},#{post_title},now(),#{plate_name})
+    </insert>
+</mapper>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>公告编辑</title>
+    <style>
+        .input-width{
+            width: 500px;
+        }
+    </style>
+    <link rel="stylesheet" href="/leek_bbs/statics/yu-ui/js_css/yu.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/layui/css/layui.css">
+</head>
+<body >
+<form class="layui-form" action="" lay-filter="example" style="margin-top: 50px">
+    <div class="layui-form-item">
+        <input type="hidden" id="id" name="nId">
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">公告标题</label>
+        <div class="layui-input-block " style="width:1000px;">
+            <input type="text" name="nTitle" id="nTitle" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input" style="width: 50%">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">选择框</label>
+        <div class="layui-input-block input-width">
+            <select name="plateName" lay-verify="" id="plateId">
+                <option value="" selected>请选择一个板块</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">文本域</label>
+        <div class="layui-input-block input-width" >
+            <textarea placeholder="请输入内容" class="layui-textarea" id="demo" style="display: none;"></textarea>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button type="submit" class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+            <button type="button" class="layui-btn layui-btn-normal" id="cancel">取消</button>
+        </div>
+    </div>
+</form>
+
+<script src="/leek_bbs/statics/component/common_import.js"></script>
+<script>
+    var tableLoad1;
+
+    function child(data,tableLoad){
+        console.log(data)
+        tableLoad1 = tableLoad;
+        $("#id").val(data.n_id);
+        $("#nTitle").val(data.n_title);
+        $("#demo").val(data.n_content);
+        window.parent.getPlateInfo().forEach(item => {
+            let str;
+            if(data.n_in_plate_name==item.plate_name){
+                str = `<option value="${item.plate_name}" selected="selected">${item.plate_name}</option>`;
+            }else{
+                str = `<option value="${item.plate_name}">${item.plate_name}</option>`;
+            }
+            $("#plateId").append(str);
+        });
+    }
+    setTimeout(function () {
+        layui.use(['layer', 'form','layedit'], function(){
+            var layer = layui.layer
+                ,form = layui.form;
+            var layedit = layui.layedit;
+            var index = layedit.build('demo',{
+                height: 150, //设置编辑器高度
+                tool: [
+                    'strong' //加粗
+                    ,'italic' //斜体
+                    ,'underline' //下划线
+                    ,'del' //删除线
+                    ,'|' //分割线
+                    ,'left' //左对齐
+                    ,'center' //居中对齐
+                    ,'right' //右对齐
+                    ,'face' //表情
+                ]
+            }); //建立编辑器
+            form.render(); //解决表单未渲染情况,重新渲染form
+            $("#cancel").on("click",function () {
+                var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                parent.layer.close(index); //再执行关闭
+            })
+            form.on('submit(demo1)', function(data){
+                console.log(data.field) //当前容器的全部表单字段，名值对形式：{name: value}
+                data.field.nContent=layedit.getContent(index); //获取并且修改富文本编辑器的内容
+                let notice = data.field;
+                console.log(data.field)
+                axios.post("/leek_bbs/stair/noticeManage/updateNoticeById",notice).then((response)=>{
+                    console.log(response)
+                    if (response.data.code=='500020'){
+                        ui.success("修改成功",1500,true)
+                        tableLoad1.reload(); //重载父类表格数据
+                        setTimeout(function () {
+                            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                            parent.layer.close(index); //再执行关闭
+                        },1500)
+                    }else{
+                        ui.success("修改失败",1500,true)
+                        setTimeout(function () {
+                            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                            parent.layer.close(index); //再执行关闭
+                        },1500)
+
+                    }
+
+                })
+                return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+            });
+        });
+    },100)
+</script>
+</body>
+</html>

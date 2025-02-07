@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>添加版块公告</title>
+    <style>
+        .input-width{
+            width: 50%;
+        }
+    </style>
+    <link rel="stylesheet" href="/leek_bbs/statics/yu-ui/js_css/yu.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/layui/css/layui.css">
+</head>
+<body>
+<form class="layui-form" action="" lay-filter="example" id="noticeForm">
+    <div class="layui-form-item" style="margin-top: 50px">
+        <label class="layui-form-label">公告标题</label>
+        <div class="layui-input-block input-width">
+            <input type="text" name="nTitle" id="nTitle" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">所属版块</label>
+        <div class="layui-input-block input-width">
+            <select name="nPlateId" lay-filter="plateList" id="plateList">
+                <option value="" selected>请选择一个版块</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">内容</label>
+        <div class="layui-input-block input-width">
+            <textarea placeholder="请输入内容" class="layui-textarea" id="demo" style="display: none;"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button type="submit" class="layui-btn" lay-submit="" lay-filter="addNotice">立即提交</button>
+            <button type="reset" class="layui-btn" >重置</button>
+        </div>
+    </div>
+</form>
+<script src="/leek_bbs/statics/component/common_import.js"></script>
+<script>
+    getPlateList()
+    layui.use(['form','layer','layedit'],function () {
+        var form = layui.form;
+        var layer = layui.layer;
+        var layedit = layui.layedit;
+        var index = layedit.build('demo',{
+            height: 150, //设置编辑器高度
+            tool: [
+                'strong' //加粗
+                ,'italic' //斜体
+                ,'underline' //下划线
+                ,'del' //删除线
+                ,'|' //分割线
+                ,'left' //左对齐
+                ,'center' //居中对齐
+                ,'right' //右对齐
+                ,'face' //表情
+            ]
+        })
+        form.render(); //更新渲染
+        form.on('submit(addNotice)',function (data) {
+            data.field.nPlateName=$("#plateList option:selected").text(); //获取版块名称
+            data.field.nContent=layedit.getContent(index); //获取富文本编辑器内容
+            if(data.field.nTitle==''||data.field.nTitle==null){
+                ui.alert("公告标题不能为空")
+            }else if(data.field.nPlateId=='' || data.field.nPlateId==null){
+                ui.alert("请选择公告所属版块",1500,true)
+            }else if(data.field.nContent==''||data.field.nContent==null){
+                ui.alert("公告内容不能为空")
+            }else{
+                data.field.nUId = 1;
+                var noticeData = data.field;
+                console.log(noticeData) //当前容器的全部表单字段，名值对形式：{name: value}
+                axios.post("/leek_bbs/stair/noticeManage/publishNotice",noticeData).then((response)=>{
+                    if (response.data.code=='500020'){
+                        $("#noticeForm")[0].reset(); //重置表单内容
+                        //layui.form.render();
+                        //$("#demo").val(" ");
+                        layedit.clearContent(index); //自定义方法,清空layui富文本编辑器.在layui.js中添加clearContent()方法
+                        ui.success("公告发表成功",1500,true)
+                    }else{
+                        ui.error("公告发表失败",1500,true)
+                    }
+                })
+            }
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        })
+    })
+    function getPlateList(){
+        axios.get('/leek_bbs/bbs/plate/findAll').then(result => {
+            listPlate = result.data;
+            listPlate.forEach(item => {
+                let str = `<option value="${item.id}">${item.plate_name}</option>`;
+                $("#plateList").append(str);
+            })
+        }).catch(error => {
+            ui.error("数据请求异常",1500,false);
+        })
+    }
+</script>
+</body>
+</html>

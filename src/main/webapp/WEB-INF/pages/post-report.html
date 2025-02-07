@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>举报</title>
+    <link rel="icon" href="/leek_bbs/statics/images/favicon.ico" >
+    <link rel="stylesheet" href="/leek_bbs/statics/layui/css/layui.css">
+    <style>
+        #layer-report .layui-col-sm3 {
+            margin: 10px 17px;
+            padding: 7px 0;
+            width: 84px;
+            text-align: center;
+            cursor:pointer;
+            background-color: #e5e5e5;
+        }
+        .m-color{
+            color:red;
+        }
+    </style>
+</head>
+<body>
+    <div class="layui-fluid">
+        <div id="layer-report" style="margin-top:12px;margin-left: 18px;">
+            <div class="layui-row" style="margin-bottom: 10px;"><span style="font-size: 16px;font-weight: bold;">举报</span></div>
+            <div class="layui-row"><span>选择你要举报的内容(必选)</span></div>
+            <div class="layui-row" style="margin-top: 6px;">
+                <div class="layui-col-sm3"><span>内容涉黄</span></div>
+                <div class="layui-col-sm3"><span>涉及侵权</span></div>
+                <div class="layui-col-sm3"><span>内容抄袭</span></div>
+                <div class="layui-col-sm3"><span>涉嫌广告</span></div>
+            </div>
+            <div class="layui-row">
+                <div class="layui-col-sm3"><span>内容侵权</span></div>
+                <div class="layui-col-sm3"><span>侮辱谩骂</span></div>
+                <div class="layui-col-sm3"><span>样式问题</span></div>
+                <div class="layui-col-sm3"><span>其他</span></div>
+            </div>
+            <div class="layui-row" style="margin-top:4px;margin-bottom: 10px;">
+                <span style="font-size:16px;font-weight: bold;">补充说明(选填)</span>
+            </div>
+            <div class="layui-row">
+                <textarea name="textContent" class="layui-textarea" placeholder="请详细描述您的内容..."></textarea>
+            </div>
+        </div>
+    </div>
+
+<script src="/leek_bbs/statics/bootstrap-3.3.7/js/jquery.min.js"></script>
+<script>
+    $(".layui-col-sm3").click(function () {
+        removeColor();
+        $(this).addClass("m-color");
+    })
+    function removeColor() {
+        $("#layer-report .layui-col-sm3").each(function () {
+            $(this).removeClass("m-color");
+        })
+    }
+</script>
+</body>
+</html>

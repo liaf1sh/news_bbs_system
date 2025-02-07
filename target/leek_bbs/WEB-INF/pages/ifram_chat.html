@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>通讯</title>
+    <link rel="stylesheet" href="/leek_bbs/statics/bootstrap-3.3.7/css/bootstrap.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/layui/css/layui.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/css/chat_main.css">
+</head>
+<body>
+
+<div id="app">
+    <div class="layui-tab-content" >
+        <!-- 好友列表 -->
+        <div id="grouping" class="layui-tab-item layui-show">
+            <div class="layui-row">
+                <ul class="layui-nav layui-bg-cyan layui-nav-tree" lay-filter="filter">
+                    <li class="layui-nav-item" v-for="item in friendList" :key="item.group_id">
+                        <a href="javascript:;">
+                            <i class="layui-icon">&#xe602;</i><span>{{item.group_name}}</span><span>({{item.userFriends.length}})</span>
+                        </a>
+                        <dl class="layui-nav-child">
+                            <dd v-for="lists in item.userFriends" :key="lists.id">
+                                <a href="javascript:;" @click="openSession(lists.user)">
+                                    <img :src="'/leek_bbs/'+lists.user.picture" class="img-circle" alt="头像加载失败" title="头像">
+                                    <span>{{lists.user.another_name}}</span>
+                                </a>
+                            </dd>
+                        </dl>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- 群组 -->
+        <div id="group" class="layui-tab-item">
+            <a href="javascript:;">
+                <img src="/leek_bbs/statics/images/20171216094159_QaLXP.jpeg" class="img-circle" alt="头像加载失败" title="头像">
+                <span>前端交流群</span>
+            </a>
+        </div>
+        <!-- 消息列表 -->
+        <div id="message-list" class="layui-tab-item">
+            <!--<div> <a href="javascript:;">
+                <img src="images/face.jpg" class="img-circle" alt="头像加载失败" title="头像">
+                <span>成龙</span>
+            </a></div>
+            <div> <a href="javascript:;">
+                <img src="images/u1.png" class="img-circle" alt="头像加载失败" title="头像">
+                <span>小马</span>
+            </a></div>-->
+            <div align="center" v-show="isMsg()"><br><span style="opacity: 0.8;">暂无会话消息</span></div>
+        </div>
+        <!-- 搜索到的好友列表 -->
+        <div id="search-list" class="layui-tab-item">
+
+        </div>
+    </div>
+
+</div>
+
+<script src="/leek_bbs/statics/component/common_import.js"></script>
+<script>
+    
+    new Vue({
+        el:"#app",
+        data:{
+            friendList:[]
+        },
+        methods:{
+            isMsg(){
+                //查找消息列表是否存在会话记录
+                var len = $("#message-list > div > a").length;
+                if (len > 0){
+                    return false;
+                }
+                return true;
+            },
+            openSession(item){
+                //调用父页面方法
+                parent.window.openSessionW(item);
+            }
+
+        },
+        created(){
+            var id = JSON.parse(localStorage.getItem("initUser")).userInfo.id;
+            axios.get("/leek_bbs/bbs/userFriend/listFriend?id="+id)
+                .then(res => {
+                    var data = res.data;
+                    this.friendList = data;
+                    //console.log(this.friendList);
+                    //加载layui模块
+                    loadLayui();
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+        }
+        
+    })
+
+    //加载layui,解决vue动态渲染问题
+    function loadLayui() {
+        layui.define(['element','layer'],function(exports){
+            var element = layui.element,
+                layer = layui.layer;
+            //监听导航点击
+            element.on('nav(filter)', function(elem){
+               // console.log(elem.html()); //得到当前点击的DOM对象
+                //移除点击好友时的背景颜色
+                $(this).parent().removeClass('layui-this');
+            });
+
+        });
+    }
+</script>
+</body>
+</html>

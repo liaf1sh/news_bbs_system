@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>设置</title>
+    <link rel="icon" href="/leek_bbs/statics/images/favicon.ico" >
+    <link rel="stylesheet" href="/leek_bbs/statics/yu-ui/js_css/yu.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/layui/css/layui.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/bootstrap-3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/css/head.css">
+    <style>
+        .container .row .col-sm-2 .row{
+            padding-left: 20px;
+        }
+        .m-hover-bg:hover{
+            border-left: 2px solid #ff6f3d;
+            background-color: #f3f3f3;
+        }
+        .m-hover-bg:hover a{
+            color: #ff6f3d;
+        }
+        h5 > a{
+            color: #333;
+        }
+        h5 > a:hover{
+            color: #ff6f3d;
+        }
+        .m-active{
+            border-left: 2px solid #ff6f3d;
+            background-color: #f3f3f3;
+        }
+        .layui-tab-title li:hover{
+            color: #ff6f3d;
+            background-color: #e5e5e5;
+            opacity: .9;
+        }
+        .layui-this{
+            font-weight: bold;
+        }
+        .m-border-bottom{
+            padding-top: 10px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .m-border-bottom:hover{
+            cursor:pointer;
+            color: #ff6f3d;
+            background-color: #f5f5f5;
+        }
+        .layui-tab-content img{
+            width: 14px;
+            height: 13px;
+        }
+        .m-left{
+            margin-left: 4px;
+        }
+        .m-right{
+            float: right;
+            margin-right: 38px;
+        }
+        .layui-tab form .layui-input{
+            width: 352px;
+        }
+        #tab-plate input:focus{
+            border:1px solid #3879d9 !important;
+            outline:none;
+        }
+        .layui-tab .row{
+            margin-left: 5px;
+        }
+        .layui-unselect .layui-form-select{
+            margin-left: -50px;
+        }
+        .layui-select-title > input{
+            width:145px !important;
+        }
+        .layui-form-select .layui-edge {
+            right: 70px;
+        }
+        .layui-anim.layui-anim-upbit{
+            min-width: 168px;
+        }
+        .layui-layedit{
+            width: 510px;
+        }
+        .layui-tab .row > ul > li{
+            padding: 16px 5px;
+            width: 96%;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .layui-tab .row > ul li img{
+            width: 45px;
+            height: 45px;
+        }
+        .layui-tab ul > li > a{
+             color: #333;
+         }
+        .layui-tab ul > li > a:hover{
+            color: #ff6f3d;
+        }
+        #tab-care ul > li button:hover{
+            color: #ca0c16;
+            background: #fde3e4;
+            border: 1px solid #ca0c16;
+        }
+        .s-margin{
+            float: right;
+            margin-right: 5px;
+            line-height: 42px;
+            opacity: .7;
+        }
+        footer{
+            margin-top: 164px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <!-- 导航开始 -->
+    <div id="hmc">
+        <head_menu_comp :is_login="isLoginShow" ref="fo"></head_menu_comp>
+    </div>
+    <!-- 导航结束 -->
+    <!-- 中间主体部分 -->
+    <div class="container" id="careApp" style="display: none;">
+        <div class="row">
+            <span style="opacity: .8;">
+                <a href="/leek_bbs/skipPage/index"><span class="glyphicon glyphicon-home"></span></a>&nbsp;>&nbsp;
+                <a href="javascript:;">设置</a>&nbsp;>&nbsp;
+                <span>修改头像</span>
+            </span>
+           <!-- <span style="float: right;"><a href="javascript:;">我的收藏</a></span>-->
+        </div>
+        <div class="row" style="margin-top: 20px;">
+            <div class="col-sm-2" style="padding-bottom:20px;border: 1px solid #e5e5e5;background-color: #fff;">
+                <div class="row" style="border-bottom: 1px solid #e5e5e5;"><h4>设置</h4></div>
+                <div class="row m-hover-bg m-active" id="userBtn"><h5><a href="javascript:;">头像修改</a></h5></div>
+                <div class="row m-hover-bg" id="postsBtn"><h5><a href="javascript:;">个人资料</a></h5></div>
+                <div class="row m-hover-bg" id="plateBtn"><h5><a href="javascript:;">密码安全</a></h5></div>
+                <div class="row m-hover-bg" id="careBtn"><h5><a href="javascript:;">我的关注</a></h5></div>
+            </div>
+            <div class="col-sm-8" style="margin-left:30px;border: 1px solid #e5e5e5;background-color: #fff;">
+                <div class="layui-tab" id="tab-user" lay-filter="tabUser">
+                    <div class="row">
+                        <h4>当前我的头像</h4>
+                        <h5>上传个人头像</h5>
+                        <div class="row"><img src="/leek_bbs/statics/images/02_noavatar_middle.gif" width="160" height="160" alt=""></div>
+                        <h3>设置新头像</h3>
+                        <div class="row" style="padding-bottom: 10px;">
+                            <span>上传<br></span>
+                        </div>
+                        <div class="row">
+                            <div class="layui-upload-drag" id="pictureUpload">
+                                <i class="layui-icon"></i>
+                                <p>点击上传</p>
+                                <div class="layui-hide" id="uploadDemoView">
+                                    <hr>
+                                    <img src="" alt="上传成功后渲染" style="max-width: 196px">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-tab" id="tab-posts" lay-filter="tabPosts" style="display: none;">
+                    <ul class="layui-tab-title">
+                        <li class="layui-this">基本资料</li>
+                        <li>联系方式</li>
+                        <li>个人信息</li>
+                    </ul>
+                    <div class="layui-tab-content" style="width: 820px;">
+                        <div class="layui-tab-item layui-show">
+                            <div style="margin-top: 20px;">
+                                <div class="layui-form" lay-filter="alterUserBasic">
+                                    <input type="hidden" name="id" class="layui-input user-id">
+                                    <input type="hidden" name="username" class="layui-input user-name">
+                                    <input type="hidden" name="address" id="addressInp" class="layui-input">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">昵称</label>
+                                        <div class="layui-input-inline">
+                                            <input type="text" name="another_name" lay-verify="required" autocomplete="off" class="layui-input nickname">
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">账号</label>
+                                        <div class="layui-input-inline">
+                                            <span class="user-username" style="line-height: 38px;"></span>
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">性别</label>
+                                        <div class="layui-input-block">
+                                            <input type="radio" name="sex" value="男" title="男" checked="">
+                                            <input type="radio" name="sex" value="女" title="女">
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item" id="area-picker">
+                                        <div class="layui-form-label">居住地址</div>
+                                        <div class="layui-input-inline" style="width: 200px;">
+                                            <select name="province" class="province-selector" data-value="江西省" lay-filter="province-1">
+                                                <option value="">请选择省</option>
+                                            </select>
+                                        </div>
+                                        <div class="layui-input-inline" style="left:-40px;width: 200px;">
+                                            <select name="city" class="city-selector" data-value="宜春市" lay-filter="city-1">
+                                                <option value="">请选择市</option>
+                                            </select>
+                                        </div>
+                                        <div class="layui-input-inline" style="left:-80px;width: 200px;">
+                                            <select name="county" class="county-selector" data-value="丰城市" lay-filter="county-1">
+                                                <option value="">请选择区</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">职业</label>
+                                        <div class="layui-input-block" style="margin-left: 100px;margin-top: 25px;">
+                                            <input type="text" name="profession" lay-verify="required" autocomplete="off" class="layui-input" style="width: 362px;">
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <div class="layui-input-block" style="margin-top: 25px;">
+                                            <button type="submit" class="layui-btn layui-btn-sm" style="width: 74px;background-color: #fd8738;" lay-submit="" lay-filter="alterUserBasic">保存</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-tab-item">
+                            <div style="margin-top: 20px;">
+                                <div class="layui-form">
+                                    <input type="hidden" name="id" class="layui-input user-id">
+                                    <input type="hidden" name="username" class="layui-input user-nickname">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">昵称</label>
+                                        <div class="layui-input-inline">
+                                            <span class="user-nickname" style="line-height: 38px;"></span>
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">账号</label>
+                                        <div class="layui-input-inline">
+                                            <span class="user-username" style="line-height: 38px;"></span>
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">手机</label>
+                                        <div class="layui-input-block" style="margin-left: 102px;">
+                                            <input type="text" name="phone" lay-verify="required|phone" autocomplete="off" class="layui-input" style="width: 350px;">
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">Email</label>
+                                        <div class="layui-input-inline">
+                                            <input type="email" name="email" lay-verify="required|email" autocomplete="off" placeholder="请输入邮箱地址" class="layui-input">
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <div class="layui-inline">
+                                            <label class="layui-form-label"></label>
+                                            <div class="layui-input-inline" style="width: 100px;">
+                                                <input type="text" name="emailCode"style="width:120px;height: 38px;" placeholder="输入邮箱验证码" lay-verify="required" autocomplete="off" class="layui-input">
+                                            </div>
+                                            <div id="sendVerify-1" class="layui-input-inline" style="margin-left:35px;width: 100px;">
+                                                <button id="sendCode-1" class="btn btn-default btn-primary">发送验证码</button>
+                                            </div>
+                                            <div class="layui-input-inline" style="width: 150px;">
+                                                <span style="display: block;margin-top: 6px;font-size: 15px;">&nbsp;&nbsp;(此处为验证旧邮箱)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <div class="layui-input-block">
+                                            <span id="errorRes-2" style="margin-left:0;font-size: 18px;color: red;"></span>
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <div class="layui-input-block" style="margin-top: 25px;">
+                                            <button type="submit" class="layui-btn layui-btn-sm" style="width: 74px;background-color: #fd8738;" lay-submit="" lay-filter="alterRelationBtn">保存</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-tab-item">
+                            <div style="margin-top: 20px;">
+                                <div class="layui-form">
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">昵称</label>
+                                        <div class="layui-input-block">
+                                            <span class="user-nickname" style="line-height: 38px;"></span>
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">账号</label>
+                                        <div class="layui-input-block">
+                                            <span class="user-username" style="line-height: 38px;"></span>
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <label class="layui-form-label">个性签名</label>
+                                        <div class="layui-input-block">
+                                            <textarea id="bardian-edit" style="display: none;"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="layui-form-item">
+                                        <div class="layui-input-block">
+                                            <button id="alterSignBtn" class="layui-btn layui-btn-sm" style="width: 74px;background-color: #fd8738;" >保存</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-tab" id="tab-plate" lay-filter="tabPlate" style="display: none;">
+<!--                    <div class="row" style="padding: 10px;border-bottom: 1px solid #f3f3f3;"><span>您必须填写原密码才能修改下面的资料</span></div>-->
+                    <div style="margin-top: 20px;">
+                        <div class="layui-form" lay-filter="alterPwdForm">
+                            <input type="hidden" name="username" class="layui-input user-name">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">旧密码</label>
+                                <div class="layui-input-inline">
+                                    <input type="password" name="oldPwd" lay-verify="required" autocomplete="off" placeholder="请输入旧密码" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">密码</label>
+                                <div class="layui-input-inline">
+                                    <input type="password" name="password" placeholder="请输入密码" lay-verify="required|password" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">确认密码</label>
+                                <div class="layui-input-inline">
+                                    <input type="password" id="classPwd" name="pwd" placeholder="请再次输入密码" lay-verify="required" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <div class="layui-input-block" style="margin-bottom: 52px;">
+                                    <span id="errorRes" style="margin-left:0;font-size: 18px;color: red;"></span>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <div class="layui-input-block" style="margin-top: -40px;">
+                                    <button type="submit" class="layui-btn layui-btn-sm" style="width: 74px;background-color: #fd8738;" lay-submit="" lay-filter="alterPwdBtn">保存</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-tab" id="tab-care" lay-filter="tabUser" style="display: none;" v-cloak="">
+                    <div class="row" style="padding: 0 5px 15px;width: 96%;border-bottom: 1px solid #e5e5e5;"><h3>我的关注</h3><h4 style="float: right;margin-top:-34px;margin-right: 15px;">共{{careList.length}}人</h4></div>
+                    <div class="row">
+                        <ul>
+                            <li v-for="item in careList">
+                                <a :href="'/leek_bbs/skipPage/personal?id='+item.id">
+                                    <img :src="'/leek_bbs/'+item.picture" class="img-circle" alt="">&emsp;
+                                    <span>{{item.another_name}}</span>
+                                </a>
+                                <div class="s-margin"><button class="btn btn-default" @click="deleteCare(item.id)">取消关注</button></div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚部分 -->
+    <footer id="footer">
+        <div class="row">
+            <p>
+                <span>20203631王瑜-20203638丁乐陶</span>
+<!--                <span>版权所有&nbsp;All Rights Reserved.</span>-->
+            </p>
+        </div>
+    </footer>
+</div>
+<script src="/leek_bbs/statics/component/common_import.js"></script>
+<script src="/leek_bbs/statics/component/head_menu.js"></script>
+<script src="/leek_bbs/statics/js/my_project_rs.js"></script>
+<script>
+    const careApp = new Vue({
+        el:"#careApp",
+        data:{
+            careList:[],
+            pageNo:1,
+            pageSize:8,
+            total:10
+        },
+        methods:{
+            fetchData(){
+                axios.post(`/leek_bbs/bbs/care/listCare`,{
+                    uid:userInfo.id,
+                    pageNo:this.pageNo,
+                    pageSize:this.pageSize
+               }).then(response => {
+                    const res = response.data;
+                    console.log(res);
+                    this.careList = res.data;
+                    this.total = res.total;
+                }).catch(error => {
+                    console.log(error);
+                })
+            },
+            deleteCare(aid){
+                ui.confirm('是否确定取消关注?',function (z) {
+                    if (z) {
+                        axios.post('/leek_bbs/bbs/care/deleteCare',{
+                            'uid': userInfo.id,
+                            'aid': aid
+                        }).then(response => {
+                            const res = response.data;
+                            if (res.code == "500020") {
+                                ui.success("取消关注成功",2000,true);
+                                this.fetchData();
+                            }else {
+                                ui.error(res.msg,2000,true);
+                            }
+                        }).catch(error => {
+                            ui.error("取消关注失败");
+                            console.log(error);
+                        })
+                    }
+                });
+
+            }
+        }
+    });
+    //配置省级联动插件目录
+    layui.config({
+        base: '/leek_bbs/statics/layui/lay-module/layarea/'
+        , version: '1.0'
+    });
+    layui.use(['form','upload','layedit', 'layarea','util'],function () {
+        let form = layui.form,
+            upload = layui.upload,
+            layarea = layui.layarea,
+            util = layui.util,
+            layedit = layui.layedit;
+
+        let address = "天津市天津市西青区";
+        let count = 0;
+
+        //创建编辑器
+        let edIndex;
+
+        setTimeout(() => {
+            if (userInfo != null) {
+                careApp.fetchData();
+                setTimeout(() => {
+                    $("#careApp").css("display","block");
+                },50);
+                $(".user-id").val(userInfo.id);
+                $(".user-name").val(userInfo.username);
+                $(".user-nickname").text(userInfo.another_name);
+                $(".nickname").val(userInfo.another_name);
+                $(".user-username").text(userInfo.username);
+                $(".user-email").text(userInfo.email);
+                $("#addressInp").val(address);
+                $("#bardian-edit").val(userInfo.personalized_sign);
+                if (getUrlName("care")) {
+                    $("#careBtn").click();
+                }
+                edIndex = layedit.build('bardian-edit', {
+                    height:160,
+                    tool: ['strong' //加粗
+                        , 'face' //斜体
+                        ,'|'
+                        ,'underline' //下划线
+                        ,'del' //删除线
+                    ]
+                });
+            }else {
+                layui.login();
+            }
+        },200);
+
+        $(document).on("click","#sendCode-1",function(){
+            countDown("1");
+            return false;
+        });
+        /*$(document).on("click","#sendCode-2",function(){
+            countDown("2");
+            return false;
+        });*/
+
+        //密码修改
+        form.on('submit(alterPwdBtn)', function(data){
+            if (data.field.password != data.field.pwd) {
+                //layer.msg('两次密码不一致', {icon: 5,time: 2000});
+                //ui.notice("两次密码不一致",2000,true);
+                ui.error("两次密码不一致",2000,true);
+                $("#classPwd").focus();
+            }else {
+                saveUserInfo(data.field,0);
+                /*axios.post('/leek_bbs/bbs/user/alterUserInfo',data.field).then(response => {
+                    let resData = response.data;
+                    if (resData.code == "500020") {
+                        ui.success("密码保存成功",2000,true);
+                    }else if (resData.code == "0x10001") {
+                        ui.error(resData.msg,2000,true);
+                    }else {
+                        $("#errorRes").text(resData.msg);
+                    }
+                }).catch(error => {
+                    console.log(error);
+                });*/
+            }
+            return false;
+        });
+        //基本信息修改
+        form.on('submit(alterUserBasic)', function(data){
+            saveUserInfo(data.field,1);
+            return false;
+        });
+        //联系信息
+        form.on('submit(alterRelationBtn)', function(data){
+            if (count != 0){
+                saveUserInfo(data.field,1);
+            }else {
+                ui.alert("请先发送验证码",2000,true);
+            }
+        });
+        //签名更新
+        $("#alterSignBtn").click(function () {
+            let object = {
+                id:userInfo.id,
+                personalized_sign:layedit.getContent(edIndex)
+            };
+            saveUserInfo(object,3);
+            console.log(layedit.getContent(edIndex));
+        });
+        //省级联动
+        layarea.render({
+            elem: '#area-picker',
+            change: function (res) {
+                //选择结果
+                address = res.province+res.city+res.county;
+                $("#addressInp").val(address);
+            }
+        });
+
+
+        //头像拖拽上传
+        upload.render({
+            elem: '#pictureUpload'
+            ,url: '/leek_bbs/bbs/file/fileupload'
+            ,data: {
+                id: function(){
+                    return userInfo.id;
+                }
+            }
+            ,done: function(res){
+                console.log(res);
+                if(res.code == 0){
+                    let username = userInfo.username;
+                    ui.success('头像上传成功',2000,true);
+                    layui.$('#uploadDemoView').removeClass('layui-hide').find('img').attr('src','/leek_bbs/'+res.picture);
+                    localStorage.removeItem("initUser");
+                    getUserInformation(username);
+                }else {
+                    ui.error('头像上传失败',2000,true);
+                }
+            }
+        });
+
+        //修改信息统一方法
+        function saveUserInfo(user,mark) {
+            axios.post('/leek_bbs/bbs/user/alterUserInfo',user).then(response => {
+                let data = response.data;
+                if (data.code == "500020") {
+                    if (mark == 1){
+                        ui.success("用户信息保存成功",2000,true);
+                        localStorage.removeItem("initUser");
+                        getUserInformation(user.username);
+                    }else if (mark == 3){
+                        ui.success("个性签名保存成功",2000,true);
+                        layedit.clearContent(edIndex);
+                    } else {
+                        $("#errorRes").text("");
+                        ui.success("用户密码更新成功",2000,true);
+                    }
+                }else if (data.code == "300036") {  //验证密码抛异常要输出的内容
+                    $("#errorRes").text(data.msg);
+                }else if (data.code == "500023"){   //验证邮箱抛异常要输出的内容
+                    $("#errorRes-2").text(data.msg);
+                } else {
+                    ui.error(data.msg,2000,true);
+                }
+            }).catch(error => {
+                console.log(error);
+            })
+        }
+
+        //倒计时
+        function countDown(strId) {
+            axios.get(`/leek_bbs/bbs/user/sendEmail?email=${userInfo.email}`).then(response => {
+                let data = response.data;
+                if (data.msg == "success"){
+                    let endTime = new Date().getTime()+60*1000 //假设为结束日期
+                        ,serverTime = new Date().getTime(); //假设为当前服务器时间，这里采用的是本地时间，实际使用一般是取服务端的
+
+                    util.countdown(endTime, serverTime, function(date, serverTime, timer){
+                        let str =date[3];
+                        layui.$(`#sendVerify-${strId}`).html(`<button class="btn btn-default" disabled>重新发送(${str})</button>`);
+                        if (str == 0){
+                            layui.$(`#sendVerify-${strId}`).html(`<button id="sendCode-${strId}" class="btn btn-default btn-primary">发送验证码</button>`);
+                        }
+                    });
+                    ui.success("验证码发送成功,请到邮箱注意查看!",2000,true);
+                    count ++;
+                }else {
+                    ui.error(data.msg,2000,true);
+                }
+            }).catch(error => {
+                console.log(error);
+            })
+
+        }
+
+    });
+
+    function getUrlName(name) {
+        let url = window.location.href;
+        if (url.indexOf(name) != -1){
+            return true;
+        } else {
+            return false;
+        }
+    }
+</script>
+</body>
+</html>

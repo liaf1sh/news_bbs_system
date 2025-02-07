@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lindong.dao.INotificationDao">
+    <resultMap id="PostsNewestReplyMap" type="post">
+        <id property="id" column="id"></id>
+        <result column="title" property="title"></result>
+        <collection property="listPosts" ofType="postDetails">
+            <id property="pid" column="pid"></id>
+            <result column="pd_uid" property="pd_uid"></result>
+            <result column="post_id" property="post_id"></result>
+            <result column="reply_time" property="reply_time"></result>
+            <result column="another_name" property="pd_nickname"></result>
+            <result column="picture" property="pd_picture"></result>
+        </collection>
+    </resultMap>
+
+    <resultMap id="FriendApplyMap" type="userFriend">
+        <id column="id" property="id"></id>
+        <result column="user_id" property="user_id"></result>
+        <result column="status" property="status"></result>
+        <result column="postscript" property="postscript"></result>
+        <association property="user" javaType="user">
+            <result column="username" property="username"></result>
+            <result column="another_name" property="another_name"></result>
+            <result column="picture" property="picture"></result>
+        </association>
+    </resultMap>
+
+    <!--获取用户所有帖子的最新回复通知-->
+    <select id="paging" parameterType="map" resultMap="PostsNewestReplyMap">
+        select p.id,p.title,pd.pid,pd.pd_uid,pd.reply_time,u.another_name,u.picture
+        from (select id,title from post where user_id=#{uid}) p
+        left join post_details pd on pd.post_id=p.id
+        left join user u on pd.pd_uid=u.id
+        where pd.isLook=0 and pd.pd_uid!=#{uid}
+        order by pd.reply_time desc
+        limit #{index},#{pageSize}
+    </select>
+    <select id="getCount" parameterType="map" resultType="int">
+        select count(*)
+        from (select id,title from post where user_id=#{uid}) p
+        left join post_details pd on pd.post_id=p.id
+        left join user u on pd.pd_uid=u.id
+        where pd.isLook=0 and pd.pd_uid!=#{uid}
+    </select>
+
+    <!--查询好友申请记录-->
+    <select id="selectFriendApply" parameterType="map" resultMap="FriendApplyMap">
+        select uf.id,uf.user_id,uf.status,uf.postscript,u.username,u.another_name,u.picture
+        from user_friend uf,user u
+        where uf.user_id=u.id and uf.friend_id=#{uid} and uf.status!=3
+        limit #{index},#{pageSize}
+    </select>
+
+    <select id="getApplyCount" parameterType="map" resultType="int">
+        select count(*)
+        from user_friend uf,user u
+        where uf.user_id=u.id and uf.friend_id=#{uid} and uf.status!=3
+    </select>
+
+    <!--插入同意申请记录-->
+    <insert id="insertUserFriend" parameterType="userFriend">
+        insert into user_friend values (null,#{user_id},#{friend_id},#{group_id},#{status},now(),null)
+    </insert>
+
+    <update id="alterUserFriend" parameterType="java.util.List">
+        update user_friend set status=3
+        <where>
+            <if test="ids != null and ids.size()>0">
+                <foreach collection="ids" open="and id in (" item="id" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </update>
+
+    <update id="alterPostDetails" parameterType="java.util.List">
+        update post_details set isLook=1
+        <where>
+            <if test="ids != null and ids.size()>0">
+                <foreach collection="ids" open="and pid in (" item="id" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </update>
+
+    <!--系统消息部分,uid为0代表全部用户-->
+    <select id="listSysWarn" parameterType="map" resultType="sysWarn">
+        select * from sys_warn where uid=#{uid} or uid=0 order by w_time desc limit #{index},#{pageSize}
+    </select>
+    <select id="getCountSysWarn" parameterType="map" resultType="int">
+        select count(*) from sys_warn where uid=#{uid} or uid=0 order by w_time desc
+    </select>
+    <!--批量删除数据-->
+    <delete id="deleteSysWarnByList" parameterType="java.util.List">
+        delete from sys_warn
+        <where>
+            <if test="ids != null and ids.size()>0">
+                <foreach collection="ids" open="and id in (" item="id" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+</mapper>

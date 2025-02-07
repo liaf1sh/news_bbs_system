@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lindong.dao.IRoleDao">
+
+	<select id="listRolesByUserName"  parameterType="string" resultType="role">
+			select r.id, r.role_name from user u
+				left join user_role ur
+					on u.id = ur.user_id
+				left join role r
+					on r.id = ur.role_id
+			where u.username = #{0};
+	</select>
+
+	<!--根据条件分页查询-->
+	<select id="paging" resultType="role" parameterType="map">
+		select * from role
+		<where>
+			<if test="role_desc != null and role_desc != ''">
+				role_desc like CONCAT('%',#{role_desc},'%')
+			</if>
+		</where>
+		<if test="index != null and pageSize != null">
+			limit #{index},#{pageSize}
+		</if>
+	</select>
+	<select id="getCount" parameterType="map" resultType="int">
+		select count(*) from role
+		<where>
+			<if test="role_desc != null and role_desc != ''">
+				role_desc like CONCAT('%',#{role_desc},'%')
+			</if>
+		</where>
+	</select>
+
+	<!--添加用户角色-->
+	<insert id="insertRole" parameterType="map" >
+		insert into role(role_name, role_desc) values (#{role_name},#{role_desc})
+	</insert>
+	<!--批量删除数据-->
+	<delete id="deleteRole" parameterType="java.util.List">
+		delete from role
+		<where>
+			<if test="ids != null and ids.size()>0">
+				<foreach collection="ids" open="and id in (" item="id" separator="," close=")">
+					#{id}
+				</foreach>
+			</if>
+		</where>
+	</delete>
+
+	<update id="alterRole" parameterType="role">
+		update role
+		<set>
+			<if test="role_name != null and role_name != ''">
+				role_name=#{role_name},
+			</if>
+			<if test="role_desc != null and role_desc != ''">
+				role_desc=#{role_desc},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<!--<select id="listRoleByMap" parameterType="map" resultType="role">
+		select * from role
+		<where>
+			<if test="role_desc != null and role_desc != ''">
+				role_desc like CONCAT('%',#{role_desc},'%')
+			</if>
+		</where>
+		<if test="index != null and pageSize != null">
+			limit #{index},#{pageSize}
+		</if>
+	</select>
+	<select id="getRoleCountByMap" parameterType="map" resultType="int">
+		select count(*) from role
+		<where>
+			<if test="role_desc != null and role_desc != ''">
+				role_desc like CONCAT('%',#{role_desc},'%')
+			</if>
+		</where>
+	</select>-->
+
+</mapper>
+

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lindong.dao.IUserRoleDao">
+
+	<!--根据条件分页查询-->
+	<select id="paging" resultType="role" parameterType="map">
+		select ur.id,r.role_name,r.role_desc,u.username,u.another_name,u.id as user_id,u.username from user u
+		right join user_role ur
+		on u.id = ur.user_id
+		left join role r
+		on r.id = ur.role_id
+		<where>
+			<if test="username != null and username != ''">
+				and u.username like CONCAT('%',#{username},'%')
+			</if>
+			<if test="role_name != null and role_name != ''">
+				and r.role_name like CONCAT('%',#{role_name},'%')
+			</if>
+			<if test="role_desc != null and role_desc != ''">
+				and r.role_desc like CONCAT('%',#{role_desc},'%')
+			</if>
+		</where>
+		limit #{index},#{pageSize}
+	</select>
+	<select id="getCount" parameterType="map" resultType="int">
+		select count(*) from user u
+		right join user_role ur
+		on u.id = ur.user_id
+		left join role r
+		on r.id = ur.role_id
+		<where>
+			<if test="username != null and username != ''">
+				and u.username like CONCAT('%',#{username},'%')
+			</if>
+			<if test="role_name != null and role_name != ''">
+				and r.role_name like CONCAT('%',#{role_name},'%')
+			</if>
+			<if test="role_desc != null and role_desc != ''">
+				and r.role_desc like CONCAT('%',#{role_desc},'%')
+			</if>
+		</where>
+	</select>
+
+	<!--添加用户角色-->
+	<insert id="insertUserRole" parameterType="map" >
+		insert into user_role(user_id, role_id) values (#{user_id},#{role_id})
+	</insert>
+	<!--批量删除数据-->
+	<delete id="deleteUserRole" parameterType="java.util.List">
+		delete from user_role
+		<where>
+			<if test="ids != null and ids.size()>0">
+				<foreach collection="ids" open="and id in (" item="id" separator="," close=")">
+					#{id}
+				</foreach>
+			</if>
+		</where>
+	</delete>
+
+	<update id="alterUserRole" parameterType="map">
+		update user_role set role_id=#{role_id} where id=#{id}
+	</update>
+
+</mapper>
+

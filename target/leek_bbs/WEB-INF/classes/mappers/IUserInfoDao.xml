@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lindong.dao.IUserInfoDao">
+    <resultMap id="userBasicMap" type="user">
+        <id column="userId" property="id" ></id>
+        <result column="another_name" property="another_name"></result>
+        <result column="age" property="age"></result>
+        <result column="sex" property="sex"></result>
+        <result column="age" property="age"></result>
+        <result column="email" property="email"></result>
+        <result column="phone" property="phone"></result>
+        <result column="picture" property="picture"></result>
+        <result column="personalized_sign" property="personalized_sign"></result>
+        <result column="register_time" property="register_time"></result>
+        <result column="last_login_time" property="last_login_time"></result>
+        <result column="share_totalCount" property="share_totalCount"></result>
+        <result column="post_topTotalCount" property="post_topTotalCount"></result>
+        <association property="integral" javaType="integral">
+            <id column="integralId" property="id"></id>
+            <result column="user_id" property="user_id"></result>
+            <result column="total_integral" property="total_integral"></result>
+        </association>
+    </resultMap>
+    <resultMap id="PostResult" type="post">
+        <id column="postId" property="id" ></id>
+        <result column="title" property="title"></result>
+        <result column="post_user_id" property="user_id"></result>
+        <result column="browse_count" property="browse_count"></result>
+        <result column="reply_count" property="reply_count"></result>
+        <result column="publish_time" property="publish_time"></result>
+        <result column="first_post" property="first_post"></result>
+        <result column="plate_id" property="plate_id"></result>
+        <result column="last_reply" property="last_reply"></result>
+        <result column="last_reply_time" property="last_reply_time"></result>
+            <collection property="postShare" ofType="PostShare">
+                <id column="postShareId" property="id"></id>
+                <result column="postShareUserId" property="user_id"></result>
+                <result column="post_id" property="post_id"></result>
+                <result column="post_title" property="post_title"></result>
+                <result column="share_time" property="share_time"></result>
+                <result column="plate_name" property="plate_name"></result>
+            </collection>
+    </resultMap>
+    <!--查看用户留言-->
+    <select id="getUserLeaveInfo" parameterType="java.util.Map" resultType="leaveWord">
+        select * from leave_word where to_u_id =#{userId} order by leave_time desc limit #{pageStart},#{pageSize};
+    </select>
+    <!--用户留言-->
+    <insert id="insertLeavePost" parameterType="java.util.Map">
+        insert into leave_word values(null,#{leaveUserId},#{leaveName},#{leavePhoto},#{leaveContent},#{toUserId},now());
+    </insert>
+    <!--查看用户基本信息-->
+    <select id="getBasicUserInfoById" resultMap="userBasicMap" parameterType="java.lang.Integer">       
+        select p1.id as userId,p1.another_name, p1.age,p1.sex,p1.email,p1.picture,p1.personalized_sign,p1.phone,p1.register_time,p1.last_login_time,p2.total_integral,p4.share_totalCount,p3.post_topTotalCount
+        from user p1,integral p2 ,(select sum(post_top) post_topTotalCount from post where user_id =#{userId}) p3,
+        (select count(*) as share_totalCount from post_share where user_id =#{userId}) p4
+        where p1.id = p2.user_id and p1.id = #{userId};
+    </select>
+    <!--查看用户分享信息-->
+    <select id="getUserPostShare" resultMap="PostResult" parameterType="java.util.Map">
+         select p1.id,p1.user_id as post_user_id,p1.title,p1.browse_count,p1.reply_count,p1.publish_time,p2.user_id as postShareUserId,p2.* from post p1 join post_share p2
+         on p1.id=p2.post_id and p2.user_id=#{userId}
+         order by p2.share_time desc limit #{pageStart},#{pageSize};
+    </select>
+    <!--查看用户分享信息条数-->
+    <select id="getCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+        <choose>
+            <when test="Type=='share'">
+                select count(*) from post_share where user_id=#{userId};
+            </when>
+            <when test="Type='leave'">
+                select count(*) from leave_word where to_u_id =#{userId}
+            </when>
+        </choose>
+    </select>
+    <!--查看用户最后发表主题时间-->
+    <select id="getLastPostTime" resultType="post" parameterType="java.lang.Integer">
+         select publish_time from post where user_id =#{userId} order by publish_time desc limit 0,1;
+    </select>
+    <!--查看好友数量-->
+    <select id="getUserFriendsCount" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+         select count(*) from user_friend where user_id = #{userId} and status =1;
+    </select>
+    <!--查看用户所发主题数量-->
+    <select id="getUserPostCount" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+          select count(*) from post where user_id=#{userId};
+    </select>
+    <!--获取用户回复主题数量-->
+    <select id="getUserPostDetailCount" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+        select count(*) from post_details where pd_uid=#{userId};
+    </select>
+    <!--获取用户日志数量-->
+    <select id="getUserLogCount" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+         select count(*) from u_log where u_id=#{userId};
+    </select>
+</mapper>

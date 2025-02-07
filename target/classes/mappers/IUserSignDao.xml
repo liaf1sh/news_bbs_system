@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lindong.dao.IUserSignDao">
+
+    <resultMap id="userSignMap" type="userSign">
+        <id property="id" column="id"></id>
+        <result column="continuous_days" property="continuous_days"></result>
+        <result column="total_days" property="total_days"></result>
+        <result column="last_sign_time" property="last_sign_time"></result>
+        <result column="month_days" property="month_days"></result>
+        <result column="last_sign_time" property="last_sign_time"></result>
+        <result column="last_award" property="last_award"></result>
+        <association property="user" javaType="user">
+            <id property="id" column="uid"></id>
+            <result column="another_name" property="another_name"></result>
+        </association>
+    </resultMap>
+
+    <resultMap id="countMap" type="map">
+        <result column="post_count" property="post_count"></result>
+    </resultMap>
+
+    <select id="paging" resultMap="userSignMap" parameterType="java.util.Map">
+        select s.*,u.id uid,u.another_name from sign s,user u
+        <where>
+            <if test="orderTime != null">
+                last_sign_time > #{orderTime}
+            </if>
+            and s.user_id=u.id
+        </where>
+        limit #{index},#{pageSize};
+    </select>
+
+    <!-- 获取总记录数 -->
+    <select id="getCount" parameterType="java.util.Map" resultType="int">
+        select count(*) from sign s,user u
+        <where>
+            <if test="orderTime != null">
+                last_sign_time > #{orderTime}
+            </if>
+            and s.user_id=u.id
+        </where>
+    </select>
+
+    <!--根据用户id获取签到信息以及总排名-->
+    <select id="getObjectById" resultType="userSign" parameterType="int">
+        select * from sign s1,
+        (select (count(*)+1) sign_ranking from sign where total_days>(select total_days from sign where user_id = #{0})) s2
+        where user_id = #{0}
+    </select>
+
+    <!--获取今日与昨日发帖数量,DATE_SUB昨天日期-->
+    <select id="selectPostCountByDate" resultMap="countMap">
+        select count(reply_time) post_count
+        from post_details where reply_time > DATE_SUB(curdate(),INTERVAL 1 DAY)
+        group by Date(reply_time)
+    </select>
+    <!--论坛总贴数-->
+    <select id="selectPostCount" resultType="int">
+        select count(*) from post_details
+    </select>
+    <!--论坛会员数-->
+    <select id="selectUserCount" resultType="int">
+        select count(*) from user
+    </select>
+
+    <select id="selectTodaySignCount" resultType="int" >
+        select count(*) from sign where last_sign_time > Date(now());
+    </select>
+
+    <!--更新用户签到数据-->
+    <update id="updateUserSign" parameterType="userSign">
+        update sign
+        <set>
+            <if test="continuous_days != null and continuous_days != ''">
+                continuous_days=#{continuous_days},
+            </if>
+            <if test="total_days != null and total_days != ''">
+                total_days=#{total_days},
+            </if>
+            <if test="month_days != null and month_days != ''">
+                month_days=#{month_days},
+            </if>
+            <if test="last_sign_time != null">
+                last_sign_time=#{last_sign_time},
+            </if>
+            <if test="last_award != null and last_award != ''">
+                last_award=#{last_award},
+            </if>
+            <if test="sign_status != null and sign_status != ''">
+                sign_status=#{sign_status},
+            </if>
+        </set>
+        where user_id=#{user_id}
+    </update>
+
+    <select id="selectIntegral" parameterType="int" resultType="integral">
+        select * from integral where user_id=#{0}
+    </select>
+
+    <!--更新用户获得积分数据-->
+    <update id="updateUserIntegral" parameterType="integral">
+        update integral
+        <set>
+            <if test="last_time != null">
+                last_time=#{last_time},
+            </if>
+            <if test="user_integral != null and user_integral != ''">
+                user_integral=#{user_integral},
+            </if>
+            <if test="total_integral != null and total_integral != ''">
+                total_integral=#{total_integral},
+            </if>
+        </set>
+        where user_id=#{user_id}
+    </update>
+
+</mapper>

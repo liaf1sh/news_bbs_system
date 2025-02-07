@@ -1,0 +1,278 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>每日签到</title>
+    <!--<base href="https://bbs.binmt.cc/" />-->
+    <link rel="icon" href="/leek_bbs/statics/images/favicon.ico" >
+    <link rel="stylesheet" href="/leek_bbs/statics/yu-ui/js_css/yu.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/layui/css/layui.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/bootstrap-3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/css/head.css">
+    <style>
+        .s-margin{
+            margin-left:0px;
+            margin-top:16px;
+            padding-top: 18px;
+            padding-bottom: 20px;
+            background-color: #fff;
+        }
+        .s-margin .row span{
+            margin-left: 2px;
+            font-size: 22px;
+            color: #A9D37B;
+        }
+        .s-row-mb{
+            margin-left:10px;
+            margin-top: 20px;
+            padding-bottom: 8px;
+            width: 1152px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .s-bg{
+            border-radius: 4px;
+            background-color: #A9D37B;
+        }
+        .s-row-mb .s-bg a{
+            color: #fff !important;
+        }
+        .s-row-mb .col-sm-1{
+            padding: 6px 0;
+            text-align: center;
+            font-size: 14px;
+        }
+        .s-row-mb .col-sm-1 a{
+            color: #7f8da3;
+        }
+        .layui-laypage{
+            right: 10px;
+        }
+        .layui-laypage .layui-laypage-curr .layui-laypage-em {
+            background-color: #a9d37b !important;
+        }
+    </style>
+</head>
+<body >
+<div class="container-fluid">
+    <!-- 导航开始 -->
+    <div id="hmc">
+        <head_menu_comp :is_login="isLoginShow" ref="fo"></head_menu_comp>
+    </div>
+    <!-- 导航结束 -->
+    <div class="container" id="signApp" v-cloak>
+        <div class="row">
+            <span style="opacity: .7;">
+                <a href="index.html"><span class="glyphicon glyphicon-home"></span></a>&nbsp;>&nbsp;
+                <a href="index.html">每日签到</a>
+            </span>
+             <span style="float: right;"><a href="javascript:;">我的收藏</a></span>
+        </div>
+        <div class="row" style="margin-top: 20px;">
+            <div class="col-sm-2" style="padding-left: 0;">
+                <img src="/leek_bbs/statics/images/come_2_left.jpg" alt="">
+                <div style="position: absolute;left:10px;top:32px;">
+                    <img src="/leek_bbs/statics/images/sign_01.png" style="width: 182px;height: 56px;" alt="">
+                </div>
+                <div style="position: absolute;left:30px;top:114px;">
+                    <h5>您的签到排名:&nbsp;<span style="font-size:22px;color: #A9D37B;">{{sign_ranking}}</span></h5>
+                </div>
+            </div>
+            <div class="col-sm-10">
+                <div class="row s-margin">
+                    <div style="margin-left: 20px;">
+                        <img class="img-circle" :src="'/leek_bbs/'+picture" width="40px" height="40px" alt=""><b>&emsp;{{another_name}}</b>
+                    </div>
+                    <div class="row" style="margin-left: 68px;margin-top:5px;">
+                        <div class="col-sm-2"><h5><b>连续签到</b></h5><span>{{continuous_days}}天</span></div>
+                        <div class="col-sm-2"><h5><b>签到等级</b></h5><span>Lv. {{sign_grade}}</span></div>
+                        <div class="col-sm-2"><h5><b>积分奖励</b></h5><span style="margin-left: 18px;">{{reward_points}}</span></div>
+                        <div class="col-sm-2"><h5><b>总天数</b></h5><span>{{total_days}}天</span></div>
+                    </div>
+                </div>
+                <div style="position: absolute;right:20px;top:32px;">
+                    <img src="/leek_bbs/statics/images/come_30.jpg" alt="">
+                </div>
+                <div style="position: absolute;right:74px;top:80px;">
+                    <h4>{{today_sign}}&nbsp;<span style="color: #A9D37B;">人</span></h4>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="margin-top:16px;background-color: #fff">
+            <div class="row s-row-mb">
+                <div class="col-sm-1 s-bg"><a href="javascript:;" class="activeClass">今日排行</a></div>
+                <div class="col-sm-1"><a href="javascript:;" class="activeClass">本月排行</a></div>
+                <div class="col-sm-1"><a href="javascript:;" class="activeClass">总排行</a></div>
+                <!--<div class="col-sm-1"><a href="javascript:;" class="activeClass">奖励排行</a></div>-->
+            </div>
+            <div class="row" style="margin-left:10px;margin-top: 6px;min-width: 1170px;">
+                <table class="layui-hide" id="signTable"></table>
+            </div>
+        </div>
+    </div>
+    <!-- 页脚部分 -->
+    <footer>
+        <div class="row">
+            <p>
+
+<!--                <span>版权所有&nbsp;All Rights Reserved.</span>-->
+            </p>
+        </div>
+    </footer>
+</div>
+
+<script src="/leek_bbs/statics/component/common_import.js"></script>
+<script src="/leek_bbs/statics/component/head_menu.js"></script>
+
+<script>
+
+    var signApp = new Vue({
+        el:"#signApp",
+        data:{
+            isShow:true,
+            another_name:'',
+            picture:'01_small.gif',
+            continuous_days:'?', //连续签到天数
+            sign_grade:'?',      //签到等级
+            reward_points:'?',    //积分奖励
+            total_days:'?',  //总天数
+            sign_ranking:'?',    //签到总排名
+            today_sign:'?'   //今日签到人数
+        },
+        methods:{
+
+        }
+    });
+
+    layui.use(['table','util'], function(){
+        var table = layui.table,
+            util = layui.util;
+        var signTable;
+        var orderTime = util.toDateString(new Date(), 'yyyy-MM-dd');
+        console.log(orderTime);
+        signInfo();
+        //加载表格
+        renderTable(orderTime);
+        //表格渲染函数
+        function renderTable(orderTime){
+            signTable = table.render({
+                elem: '#signTable'
+                ,url:'/leek_bbs/bbs/sign/signPaging'
+                ,width:1150
+                ,skin: 'nob' //无边框风格
+                ,method: 'post'
+                ,contentType: 'application/json'
+                ,request: {
+                    pageName: 'pageNo' //页码的参数名称，默认：page
+                    ,limitName: 'pageSize' //每页数据量的参数名，默认：limit
+                }
+                ,where: {
+                    /*keywords:"",*/
+                    orderTime:orderTime
+                }
+                ,done: function(res, curr, count){
+                    console.log(count);
+                    if (signApp.today_sign == '?' && count != null) {
+                        signApp.today_sign = count;
+                    }
+                    //得到当前页码
+                    //console.log(curr);
+                    //得到数据总量
+                    //console.log(count);
+                }
+                ,cols: [[
+                    {field:'another_name',title: '昵称',
+                        templet: function(d){
+                            return d.user.another_name
+                        }
+                    }
+                    ,{field:'total_days', width:100, title: '总天数', sort: false}
+                    ,{field:'month_days', width:100, title: '月天数'}
+                    ,{field:'last_sign_time',width:240, title: '上次签到时间', minWidth: 150,
+                        templet: function(d){
+                            return util.toDateString(d.last_sign_time, 'yyyy-MM-dd HH:mm')
+                        }
+                    }
+                   /* ,{field:'experience', width:120, title: '目前等级', sort: false}*/
+                    ,{field:'last_award', width:120, title: '上次奖励', sort: false,
+                        templet: function(d){
+                            return d.last_award+'&nbsp;积分'
+                        }
+                    }
+
+                ]]
+                ,page: true
+            });
+        }
+
+        //定义此方法是为了解决在vue还未渲染完毕,无法取得用户已登录信息
+        function signInfo(){
+            if (userInfo != null){
+                signApp.isShown = true;
+                signApp.another_name = userInfo.another_name;
+                signApp.picture = userInfo.picture;
+                axios.get(`/leek_bbs/bbs/sign/findByUserSign?uid=${userInfo.id}`).then(response => {
+                    var data = response.data;
+                    console.log(data);
+                    var days = data.continuous_days;
+                    signApp.continuous_days = days;
+                    signApp.reward_points = data.last_award;
+                    signApp.total_days = data.total_days;
+                    signApp.sign_ranking = data.sign_ranking;
+                    //signApp.today_sign = data.todaySingCount;
+                    queryGrade(days);
+                }).catch(error => {
+                    console.log(error);
+                })
+            }else {
+                layui.login();
+            }
+        }
+
+        $(".activeClass").click(function () {
+            mvClass();
+            $(this).parent().addClass("s-bg");
+            var text = $(this).text();
+            if (text == "今日排行") {
+                orderTime = util.toDateString(new Date(), 'yyyy-MM-dd');
+                console.log(orderTime);
+                renderTable(orderTime)
+            }else if (text == "本月排行") {
+                orderTime = util.toDateString(new Date(), 'yyyy-MM');
+                console.log(orderTime);
+                renderTable(orderTime)
+            }else {
+                orderTime = util.toDateString(new Date(), 'yyyy');
+                console.log(orderTime);
+                renderTable(orderTime)
+            }
+        });
+
+        function mvClass() {
+            $(".s-row-mb > .col-sm-1").each(function () {
+                $(this).removeClass("s-bg");
+            })
+        }
+
+        //查询签到等级
+        function queryGrade(days) {
+            if (days < 10) {
+                signApp.sign_grade = 1;
+            }else if (days > 10 && days < 20) {
+                signApp.sign_grade = 2;
+            }else if (days > 20 && days < 35 ) {
+                signApp.sign_grade = 3;
+            }else if (days > 35 && days < 60 ) {
+                signApp.sign_grade = 4;
+            }else if (days > 60 && days < 100 ) {
+                signApp.sign_grade = 5;
+            }else {
+                signApp.sign_grade = 6;
+            }
+        }
+    });
+
+</script>
+
+</body>
+</html>

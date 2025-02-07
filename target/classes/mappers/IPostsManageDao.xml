@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lindong.dao.IPostsManageDao">
+    <resultMap id="PostsListMap" type="post">
+        <id property="id" column="id"></id>
+        <result column="title" property="title"></result>
+        <result column="user_id" property="user_id"></result>
+        <result column="content" property="content"></result>
+        <result column="browse_count" property="browse_count"></result>
+        <result column="reply_count" property="reply_count"></result>
+        <result column="publish_time" property="publish_time"></result>
+        <result column="first_post" property="first_post"></result>
+        <result column="post_status" property="post_status"></result>
+        <result column="post_heat" property="post_heat"></result>
+        <result column="share_count" property="share_count"></result>
+        <result column="post_grade" property="post_grade"></result>
+        <result column="post_collect" property="post_collect"></result>
+        <result column="post_top" property="post_top"></result>
+        <result column="post_tread" property="post_tread"></result>
+        <result column="post_author" property="post_author"></result>
+        <result column="last_reply" property="last_reply"></result>
+        <result column="last_reply_time" property="last_reply_time"></result>
+        <association property="plate" javaType="plate">
+            <id column="plate_id" property="id"></id>
+            <result column="plate_name" property="plate_name"></result>
+            <result column="plate_vest" property="plate_vest"></result>
+        </association>
+    </resultMap>
+
+    <!--根据条件分页查询-->
+    <select id="paging" resultMap="PostsListMap" parameterType="map">
+        select p.*,pt.plate_name,pt.plate_vest
+        from post p,plate pt
+        <where>
+             p.plate_id=pt.id
+            <if test="plate_name != null and plate_name != ''">
+                and pt.plate_name like CONCAT('%',#{plate_name},'%')
+            </if>
+            <if test="plate_vest != null and plate_vest != ''">
+                and pt.plate_vest like CONCAT('%',#{plate_vest},'%')
+            </if>
+            <if test="start_time != null and start_time != '' and end_time != null and end_time != ''">
+                and Date(p.publish_time) between #{start_time} and #{end_time}
+            </if>
+            <if test="post_status != null and post_status != ''">
+                and p.post_status=#{post_status}
+            </if>
+            <if test="post_author != null and post_author != ''">
+                and p.post_author like CONCAT('%',#{post_author},'%')
+            </if>
+            <if test="title != null and title != ''">
+                and p.title like CONCAT('%',#{title},'%')
+            </if>
+        </where>
+        limit #{index},#{pageSize}
+    </select>
+    <select id="getCount" parameterType="map" resultType="int">
+        select count(*)
+        from post p,plate pt
+        <where>
+             p.plate_id=pt.id
+            <if test="plate_name != null and plate_name != ''">
+                and pt.plate_name like CONCAT('%',#{plate_name},'%')
+            </if>
+            <if test="plate_vest != null and plate_vest != ''">
+                and pt.plate_vest like CONCAT('%',#{plate_vest},'%')
+            </if>
+            <if test="start_time != null and start_time != '' and end_time != null and end_time != ''">
+                and Date(p.publish_time) between #{start_time} and #{end_time}
+            </if>
+            <if test="post_status != null and post_status != ''">
+                and p.post_status=#{post_status}
+            </if>
+            <if test="post_author != null and post_author != ''">
+                and p.post_author like CONCAT('%',#{post_author},'%')
+            </if>
+            <if test="title != null and title != ''">
+                and p.title like CONCAT('%',#{title},'%')
+            </if>
+        </where>
+    </select>
+    <!--批量删除数据-->
+    <delete id="deletePosts" parameterType="java.util.List">
+        delete from post
+        <where>
+            <if test="ids != null and ids.size()>0">
+                <foreach collection="ids" open="and id in (" item="id" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <update id="alterPosts" parameterType="map">
+        update post
+        <set>
+            <if test="post_status != null and post_status!= ''">
+                post_status=#{post_status},
+            </if>
+            <if test="plate_id != null and plate_id!= ''">
+                plate_id=#{plate_id},
+            </if>
+        </set>
+        <where>
+            <if test="ids != null and ids.size()>0">
+                <foreach collection="ids" open="and id in (" item="id" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </update>
+
+</mapper>

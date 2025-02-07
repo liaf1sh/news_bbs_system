@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lindong.dao.IUserManageDao">
+    <select id="paging" resultType="user" parameterType="java.util.Map">
+      select * from user
+      <where>
+          <if test="userName!=''and userName!=null">
+            username like '%${userName}%'
+          </if>
+          <if test="phone!=''and phone!=null">
+            and phone like '%${phone}%'
+          </if>
+          <if test="anotherName!=''and anotherName!=null">
+              and another_name like '%${anotherName}%'
+          </if>
+          <if test="userStatus!=''and userStatus!=null">
+              and user_status =${userStatus}
+          </if>
+          <if test="beginRegister!=''and beginRegister!=null and endRegister!='' and endRegister!=null">
+            and register_time &gt; #{beginRegister} and register_time &lt; #{endRegister}
+          </if>
+      </where>
+      limit #{pageStart},#{pageSize};
+    </select>
+    <select id="getCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select count(*) from user
+        <where>
+            <if test="userName!=''and userName!=null">
+                username like '%${userName}%'
+            </if>
+            <if test="phone!=''and phone!=null">
+                and phone like '%${phone}%'
+            </if>
+            <if test="anotherName!=''and anotherName!=null">
+                and another_name like '%${anotherName}%'
+            </if>
+            <if test="userStatus!=''and userStatus!=null">
+                and user_status =${userStatus}
+            </if>
+            <if test="beginRegister!=''and beginRegister!=null and endRegister!='' and endRegister!=null">
+                and register_time &gt; #{beginRegister} and register_time &lt; #{endRegister}
+            </if>
+        </where>
+    </select>
+    <!--修改用户状态-->
+    <update id="updateUserState" parameterType="java.lang.Integer">
+        update user set user_status=${userState} where id =${userId}
+    </update>
+</mapper>

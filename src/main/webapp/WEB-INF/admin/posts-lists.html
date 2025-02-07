@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>帖子管理</title>
+    <link rel="stylesheet" href="/leek_bbs/statics/yu-ui/js_css/yu.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/layui/css/layui.css">
+    <style>
+
+        a { color:blue; transition:0.5s; }
+        a:hover { color:red; }
+        .layui-layout-admin .layui-footer{
+            left: 0px;
+            width: 98%;
+        }
+        .bgSign{
+            text-align: center;
+            color: #fff;
+            background-color: #009688;
+        }
+        .layui-col-sm4{
+            padding: 10px;
+            cursor: pointer;
+        }
+        .layui-tab{
+            margin: 4px 0;
+        }
+        .layui-table-view{
+            margin-bottom: 30px;
+        }
+    </style>
+
+</head>
+<body style="background-color: #F2F2F2">
+
+<div class="layui-layout layui-layout-admin" id="hmc">
+
+    <div style="background-color: #FFFFFF">
+        <!-- 内容主体区域 -->
+        <div class="layui-tab layui-tab-brief" lay-filter="demo" lay-allowClose="true" >
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+                    <form class="layui-form">
+                        <div class="layui-form-item marg" style="margin-left: 42px">
+                            <div class="layui-inline">
+                                <div class="layui-input-inline">
+                                    <input type="text" id="title" placeholder="帖子标题..." name="title" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <div class="layui-input-inline" style="width: 100px;">
+                                    <input type="text" id="start_time" name="start_time" placeholder="开始时间..." autocomplete="off" class="layui-input">
+                                </div>
+                                <div class="layui-form-mid">-</div>
+                                <div class="layui-input-inline" style="width: 100px;">
+                                    <input type="text" id="end_time" name="end_time" placeholder="结束时间..." autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <div class="layui-input-inline">
+                                    <input type="text" id="post_author" name="post_author" placeholder="发帖者昵称..." autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item marg" style="margin-left: 42px">
+                            <div class="layui-inline">
+                                <div class="layui-input-inline">
+                                    <!--<input type="text" id="plate_name" name="plate_name" placeholder="帖子所在板块..." autocomplete="off" class="layui-input">-->
+                                    <select name="plate_name" lay-verify="" id="plate_name">
+                                        <option value="" selected>请选择一个板块</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <div class="layui-input-inline">
+                                    <select name="post_status" lay-verify="">
+                                        <option value="" selected>请选择一个状态</option>
+                                        <option value="1">正常</option>
+                                        <option value="2">置顶</option>
+                                        <option value="3">推荐</option>
+                                        <option value="4">精华</option>
+                                        <option value="5">优秀</option>
+                                        <option value="0">违规</option>
+                                        <option value="6">未审核</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="layui-inline">
+                                <div class="layui-input-inline"><!--data-type="search"-->
+                                    <button type="button"  lay-submit lay-filter="searchBtn" class="layui-btn layui-btn-warm layui-icon layui-icon-search">查询</button>
+                                    <button type="reset" class="layui-btn layui-icon layui-icon-refresh-1 layui-btn-normal">重置</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <table class="layui-hide" id="postsTable" lay-filter="test"></table>
+
+                    <!-- 自定义头部按钮 -->
+                    <div style="display: none;" id="cellphoneToo">
+                        <div class="layui-btn-group">
+                            <button type="button" class="layui-btn layui-btn-sm layui-btn-danger" lay-event="batchDelete"><i class="layui-icon">&#xe640;</i>批量删除</button>
+                        </div>
+                        <div class="layui-btn-group">
+                            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" lay-event="recommend">推荐</button>
+                            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" lay-event="essence">精华</button>
+                            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" lay-event="stick">置顶</button>
+                            <button type="button" class="layui-btn layui-btn-sm layui-btn-primary" lay-event="excellent">优秀</button>
+                        </div>
+                        <!--<div class="layui-btn-group">
+                            <button type="button" style="background-color: rgb(188, 23, 32);" class="layui-btn layui-btn-sm" lay-event="batchAudit"><i class="layui-icon">&#xe642;</i>批量审核</button>
+                        </div>-->
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        <div align="center">
+        </div>
+    </div>
+</div>
+<script src="/leek_bbs/statics/component/common_import.js"></script>
+<script>
+    let tableLoad;
+    let listPlate;
+
+    getPlateList();
+
+    layui.use(['table','form','layer','laydate','util'], function() {
+        let table = layui.table;
+        let form = layui.form;
+        let layer = layui.layer,
+            util = layui.util,
+            laydate = layui.laydate;
+
+        //日期范围
+        laydate.render({
+            elem: '#start_time'
+            , theme: '#393D49'
+        });
+        laydate.render({
+            elem: '#end_time'
+            , theme: '#393D49'
+        });
+
+        form.on('submit(searchBtn)', function (data) {
+            search(data.field);
+            return false;
+        });
+
+        //表格数据渲染必须函数
+        tableLoad = table.render({
+            elem: '#postsTable'	//表格操作对象
+            , url: '/leek_bbs/stair/postsManage/listRecords'	//数据接口
+            //,toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+            , toolbar: '#cellphoneToo'	//自定义表格上面左侧按钮
+            , method: 'post'
+            , contentType: 'application/json'
+            , defaultToolbar: ['filter', 'exports',
+                /*'print', { //自定义头部工具栏右侧图标。如无需自定义，去除该参数即可
+
+              title: '提示'
+              ,layEvent: 'LAYTABLE_TIPS'
+              ,icon: 'layui-icon-tips'
+            }*/]
+            /*,width:800
+                ,height:'full-300'*/
+            , height: 540     //固定表格高度,当每页要显示的条数大于10条时,让它出现下拉框
+            , cellMinWidth: 100	//设置列的最小默认宽度,拉伸时最小能缩小的宽度
+            , request: {
+                pageName: 'pageNo' //页码的参数名称，默认：page
+                , limitName: 'pageSize' //每页数据量的参数名，默认：limit
+            }
+            , done: function (res, curr, count) {
+            }
+            //,totalRow:true	//开启合并行,进行计算
+            , text: {
+                none: '暂无相关数据'//默认:无数据
+            }
+            , page: true
+            //,limit:20	//设置每页显示的条数,默认显示为10条
+            , limits: [10, 20, 30, 40]	//每页显示条数选择下拉框
+            , title: '帖子信息数据表'	//数据导出标题
+            /*, parseData: function (res) {     //自定义分页接收数据
+                    //LayUI数据格式-尤其注意
+                    return {
+                        "code": 0,
+                        "msg": "",
+                        "count": res.length,
+                        "data": res
+                    }
+                }*/
+            , cols: [[
+                {type: 'checkbox', fixed: 'left'}	//复选框,多选
+                , {field: 'id', title: 'ID', fixed: 'left', unresize: true, sort: true}//sort:已请求数据排序开启
+                , {field: 'title', title: '帖子标题',width:'180'}	//edit:可编辑数据 align:center居中显示
+                , {field: 'content', title: '帖子内容',width:'210'}
+                , {field: 'browse_count', title: '帖子浏览数',width:'125', sort: true}
+                , {field: 'reply_count', title: '帖子回复数',width:'120', sort: true}
+                , {
+                    field: 'publish_time', title: '帖子发表时间', width: '170',
+                    templet: function (d) {
+                        return util.toDateString(d.publish_time, 'yyyy-MM-dd HH:mm:ss')
+                    }
+                }
+                , {
+                    field: 'first_post', title: '新人帖',align:'center',
+                    templet: function (d) {
+                        return d.first_post ? '是' : '否'
+                    }
+                }
+                , {
+                    field: 'post_status', title: '帖子状态',width:'110',align:'center',
+                    templet: function (d) {
+                        return statusDispose(d.post_status)
+                    }
+                }
+                , {field: 'share_count', title: '帖子分享次数',width:'125'}
+                , {field: 'post_grade', title: '帖子评分数',width:'125'}
+                , {field: 'post_collect', title: '帖子被收藏数',width:'125', sort: true}
+                , {field: 'post_top', title: '帖子被顶人数',width:'125'}
+                , {field: 'post_tread', title: '帖子被踩人数',width:'125'}
+                , {field: 'post_author', title: '帖子作者昵称',width:'125'}
+                , {field: 'last_reply', title: '最后回复者',width:'125'}
+                , {field: 'last_reply_time', title: '最后回复时间',width:'170',
+                    templet: function (d) {
+                        return util.toDateString(d.last_reply_time, 'yyyy-MM-dd HH:mm:ss')
+                    }
+                }
+                , {field: 'plate_name', title: '所属板块',
+                    templet: function(d){
+                        return d.plate.plate_name
+                    }
+                }
+                , {field: 'plate_vest', title: '所属专区',width:'135',
+                    templet: function(d){
+                        return d.plate.plate_vest
+                    }
+                }
+                , {fixed: 'right', title: '操作', width: 205, //toolbar: '#cellphoneBar',
+                    templet: function(d){
+                        let str1;
+                        let str2 = `<a class="layui-btn layui-btn-xs" style="background-color: rgb(188, 23, 32);" lay-event="removal">移动</a>
+                        <a style="margin-left: 2px;" class="layui-btn layui-btn-xs" lay-event="look">查看</a>
+                        <a style="margin-left: 2px;" class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>`;
+                        if (d.post_status==6) {
+                            str1 = `<a class="layui-btn layui-btn-xs" style="margin-left:6px;margin-right:7px;background-color: rgb(188, 23, 32);" lay-event="audit">审核</a>`
+                        }else{
+                            str1 = `<a class="layui-btn layui-btn-xs layui-btn-disabled" style="color: #fff;background-color: #009688;" lay-event="audit">已审核</a>`
+                        }
+                        return str1 + str2
+                    }
+                }	//toolbar可使用默认提供按钮,也可自定义按钮
+            ]]
+            //,id: 'activeReload'     //重载标识
+
+        });
+
+
+        function search(map) {
+            //执行重载
+            table.reload('postsTable', {
+                url: '/leek_bbs/stair/postsManage/listRecords'
+                , methods: "post"
+                , request: {
+                    page: 'pageNo' //页码的参数名称，默认：page
+                    , limit: 'pageSize' //每页数据量的参数名，默认：limit
+                }
+                , page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+                , where: map   //可以传对象
+            }, 'data');
+        }
+
+        //头工具栏事件
+        table.on('toolbar(test)', function (obj) {
+            let checkStatus = table.checkStatus(obj.config.id);
+            let data = checkStatus.data;    //表格选中的数据
+            let ids = new Array(data.length);
+            for (let i in data) {
+                let id = data[i].id;
+                ids[i] = id;
+            }
+            switch (obj.event) {
+                case 'batchDelete':
+                    //layer.msg('选中了：'+ data.length + ' 个');
+                    if (data.length > 0) {
+                        ui.confirm('确定删除吗?', function (z) {
+                            if (z) {
+                                deletePosts(ids);
+                            }
+                        });
+                    } else {
+                        ui.alert("请选择您要删除的数据", 1500, false);
+                    }
+                    break;
+                case 'batchAudit':
+                    if (data.length > 0) {
+                        ui.confirm('是否确定选中数据全部审核通过?', function (z) {
+                            console.log(data);
+                            if (z) {
+                                /*data.forEach(item => {
+                                    if (item.post_status == 1){
+                                        //ui.alert('选择的数据中存在已审核过的帖子',1500,false);
+                                        break;
+                                    }
+                                });*/
+                                alterPosts({ids:ids,post_status:1});
+                            }
+                        });
+                    } else {
+                        ui.alert('请选择您要审核的帖子', 1500, false);
+                    }
+                    break;
+                case 'recommend':
+                    if (data.length > 0) {
+                        alterPosts({ids:ids,post_status:'3'});
+                    } else {
+                        ui.alert("请选择您要推荐的帖子", 1500, false);
+                    }
+                    break;
+                case 'essence':
+                    if (data.length > 0) {
+                        alterPosts({ids:ids,post_status:'4'});
+                    } else {
+                        ui.alert("请选择您要设置为的精华的帖子", 1500, false);
+                    }
+                    break;
+                case 'stick':
+                    if (data.length > 0) {
+                        alterPosts({ids:ids,post_status:'2'});
+                    } else {
+                        ui.alert("请选择您要置顶的帖子", 1500, false);
+                    }
+                    break;
+                case 'excellent':
+                    if (data.length > 0) {
+                        alterPosts({ids:ids,post_status:'5'});
+                    } else {
+                        ui.alert("请选择您要设置为的优秀的帖子", 1500, false);
+                    }
+                    break;
+                //自定义头工具栏右侧图标 - 提示
+                case 'LAYTABLE_TIPS':
+                    layer.alert('这是工具栏右侧自定义的一个图标按钮');
+                    break;
+            };
+        });
+
+        //监听单元格编辑事件
+        table.on('edit(test)', function (obj) { //注：edit是固定事件名，test是table原始容器的属性 lay-filter="对应的值"
+            console.log(obj.value); //得到修改后的值
+            console.log(obj.field); //当前编辑的字段名
+            console.log(obj.data); //所在行的所有相关数据
+        });
+
+        //监听行工具事件
+        table.on('tool(test)', function (obj) {
+            let data = obj.data;
+            let ids = [];
+            //console.log(obj)
+            if (obj.event === 'del') {
+                ui.confirm('确定删除这条数据吗', function (z) {
+                    ids[0] = data.id;
+                    if (z) {
+                        deletePosts(ids);
+                    }
+                });
+            } else if (obj.event === 'look') {  //显示该主题回复内容
+                if (data.reply_count >= 1) {
+                    openPostsReply(data);
+                }else{
+                    ui.alert("该主题暂时还没有评论内容",1500,true);
+                }
+
+            }else if (obj.event === 'audit'){   //审核操作
+                //ids[0] = data.id;
+                openAudit(data.id,data.title,data.user_id);
+                //alterPosts({ids:ids,post_status:1});
+            } else {     //帖子迁移
+                removalPosts(data.id);
+            }
+
+        });
+
+        let index;
+
+        //批量删除数据或删除单行数据
+        function deletePosts(ids) {
+            axios.post('/leek_bbs/stair/postsManage/deletePosts', ids).then((res) => {
+                let data = res.data;
+                if (data.code == "500020") {
+                    ui.success("删除成功", 1500, false);
+                    tableLoad.reload();
+                } else if (data.code == "500037") {
+                    layer.msg(data.msg);
+                } else {
+                    ui.alert(data.msg, 1500, false);
+                }
+            }).catch(function (error) {
+                ui.alert("请求异常", 1500, false);
+                console.log(error);
+            });
+
+        }
+
+        //移动帖子方法
+        function removalPosts(id) {
+            index = layer.open({
+                type:1,
+                title:false,
+                content:`<div class="layui-fluid"><div class="layui-row" id="lay-posts" style="margin: 30px 24px;"></div></div>`
+                ,area:["50%","56%"]
+                ,btn: ['提交', '取消']
+                ,resize:false
+                ,yes: function(index, layero){
+                    let plate_id = $(".bgSign > input").val();
+                    alterPosts({ids:[id],plate_id:plate_id},0);
+                }
+                ,btn2: function(index, layero){
+
+                },
+                success: function(layero, index){
+                    listPlate.forEach(item => {
+                        let str = `<div class="layui-col-sm4">
+                                        <div align="center"><span style="line-height: 27px;">${item.plate_name}</span>
+                                        <input type="hidden" value="${item.id}"></div>
+                                    </div>`;
+                        $("#lay-posts").append(str);
+                    })
+                }
+            });
+
+        }
+
+        //修改帖子请求方法
+        function alterPosts(params,number) {
+            axios.post('/leek_bbs/stair/postsManage/changPosts',params).then(response => {
+                let data = response.data;
+                if (data.code == "500020") {
+                    layer.close(index);
+                    if (number == 0){
+                        ui.success("帖子移动成功",2000,true);
+                    } else if(params.post_status == '2') {
+                        ui.success("帖子置顶成功",2000,true);
+                    }else if(params.post_status == '4') {
+                        ui.success("帖子设置成功",2000,true);
+                    }else if(params.post_status == '5') {
+                        ui.success("帖子设置成功",2000,true);
+                    }else if(params.post_status == '3') {
+                        ui.success("帖子推荐成功",2000,true);
+                    } else {
+                        ui.success("帖子审核成功",2000,true);
+                    }
+                    tableLoad.reload();
+                }else if (data.code == "500037"){
+                    layer.msg(data.msg);
+                }else {
+                    layer.alert(data.msg,{time:2000,icon:5});
+                }
+            }).catch(error => {
+                ui.error("请求异常",1500,false);
+            })
+        }
+
+        //状态处理方法
+        function statusDispose(status) {
+            let str;
+            if (status == '1') {
+                str = `<span style="font-weight: bold;color: #009688">正常</span>`;
+            }else if (status == '2'){
+                str = `<span style="font-weight: bold;color: #ff6f3d;">置顶</span>`;
+            }else if (status == '3'){
+                str = `<span style="font-weight: bold;color: #00FF00">推荐</span>`;
+            }else if (status == '4'){
+                str = `<span style="font-weight: bold;color: #FFB800;">精华</span>`;
+            }else if (status == '5'){
+                str = `<span style="font-weight: bold;color:red;">优秀</span>`;
+            }else if (status == '6'){
+                str = `<span style="font-weight: bold;color: rgb(188, 23, 32);">未审核</span>`;
+            }else {
+                str = `<span style="font-weight: bold;color: rgb(188, 23, 32);">违规</span>`;
+            }
+
+            return str;
+        }
+
+        //查看该主题的所有评论
+        function openPostsReply(data){
+            layer.open({
+                type:2,
+                title:`<span>${data.title}</span>`,
+                content:`/leek_bbs/stair/a/b/admin/posts_reply?id=${data.id}`,
+                area: ['100%', '100%'],
+                resize:false,
+                scrollbar: false
+            })
+        }
+
+
+        //审核通知窗口
+        function openAudit(id,title,uid) {
+            index = layer.open({
+                type:1,
+                title:false,
+                content:`<div class="layui-fluid">
+                        <h3 style="margin: 8px 6px;">审核处理</h3>
+                        <div class="layui-row">
+                            <form class="layui-form">
+                                <input type="hidden" name="id" value="${id}">
+                                <input type="hidden" id="p-title" name="title" value="${title}">
+                                <input type="hidden" name="uid" value="${uid}">
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">标题</label>
+                                    <div class="layui-input-block" style="width: 50%">
+                                      <input type="text" name="title"  lay-verify="required" value="审核结果" autocomplete="off" class="layui-input" disabled>
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <label class="layui-form-label">处理结果</label>
+                                    <div class="layui-input-block" style="width: 45%">
+                                      <select name="post_status" lay-filter="auditSelect" lay-verify="required">
+                                        <option value="" selected>请选者一个处理状态</option>
+                                        <option value="1">通过</option>
+                                        <option value="0">不通过</option>
+                                      </select>
+                                    </div>
+                                </div>
+                                <div class="layui-form-item layui-form-text">
+                                    <label class="layui-form-label">内容</label>
+                                    <div class="layui-input-block" style="width: 50%">
+                                      <textarea id="lay-text" name="content" lay-verify="required" placeholder="请输入内容" class="layui-textarea"></textarea>
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <div class="layui-input-block">
+                                      <button class="layui-btn" lay-submit lay-filter="auditForm">提交</button>
+                                      <button class="layui-btn" id="closeAudit">取消</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        </div>`
+                ,resize:false
+                ,scrollbar: false
+                ,area:["55%","50%"]
+                ,success: function(layero, index){
+                    form.render();
+                }
+            });
+        }
+
+        //监听审核下拉框选择
+        form.on('select(auditSelect)', function (data) {
+            let title = $('#p-title').val();
+            if(data.value == 1){
+                $("#lay-text").val(`(帖子) ${title} ,审核通过！`);
+            }else{
+                $("#lay-text").val(`(帖子) ${title} ,审核不通过！`);
+            }
+            return false;
+        });
+
+        form.on('submit(auditForm)',function (data) {
+            let params = {ids:[data.field.id],post_status:data.field.post_status,uid:data.field.uid,title:data.field.title,content:data.field.content};
+            alterPosts(params,1);
+            return false;
+        });
+
+        $(document).on('click','#lay-posts .layui-col-sm4',function () {
+            $('#lay-posts .layui-col-sm4 > div').removeClass('bgSign');
+            // $('#lay-posts .layui-col-sm4').css('margin-top', '0');
+            // $(this).css('margin-top', '-8px');
+            $(this).find('div').addClass('bgSign');
+        })
+
+        $(document).on('click','closeAudit',function () {
+            layer.close(index);
+            return false;
+        })
+
+
+    });
+
+    function getPlateList(){
+        axios.get('/leek_bbs/bbs/plate/findAll').then(result => {
+            listPlate = result.data;
+            listPlate.forEach(item => {
+                let str = `<option value="${item.plate_name}">${item.plate_name}</option>`;
+                $("#plate_name").append(str);
+            })
+        }).catch(error => {
+            ui.error("数据请求异常",1500,false);
+        })
+    }
+
+</script>
+
+</body>
+</html>

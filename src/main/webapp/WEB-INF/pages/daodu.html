@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>新闻导读</title>
+	<link rel="icon" href="/leek_bbs/statics/images/favicon.ico" >
+	<link rel="stylesheet" href="/leek_bbs/statics/yu-ui/js_css/yu.css">
+	<link rel="stylesheet" href="/leek_bbs/statics/layui/css/layui.css">
+	<link rel="stylesheet" href="/leek_bbs/statics/bootstrap-3.3.7/css/bootstrap.min.css">
+	<!-- vue-element插件样式 -->
+	<link rel="stylesheet" href="/leek_bbs/statics/vue/element-ui/index.css">
+	<link rel="stylesheet" href="/leek_bbs/statics/css/head.css">
+	
+	<style>
+		.bgc{
+			background-color: #fff;
+		}
+		a {
+			color: #333;
+			text-decoration: none;
+		}
+		.btn1{
+			margin-right: -7px;
+			margin-bottom:10px ;
+		}
+		.btn2{
+			float: right;
+			margin-bottom:10px ;
+		}
+		.head1{
+			padding: 6px 10px;
+			background: #f9f9f9;
+			height: 33px;
+			line-height: 20px;
+			border: 1px solid #E5E5E5;
+		}
+		.content1{
+			padding: 10px 8px;
+			padding-bottom: 33px;
+			height: 25px;
+			/*line-height: 25px;*/
+			border-bottom:1px solid #E5E5E5;
+		}
+		.layui-layer .layui-layer-title {
+			font-weight: bold;
+			color: #333;
+			background-color: #f6f6f6;;
+		}
+		.bgcHover .bgcHover-div:hover{
+			background-color:#f9f9f9;
+		}
+		.bgcHover div a:hover{
+			text-decoration:underline;
+			color:orange;
+		}
+		.content1 p em{
+			font-size: 10px;
+			font-family: Arial,Psimsun,sans-serif;
+			color: #999;
+			margin-top: 200px;
+		}
+		.bgcHover .content1 .font-site{
+			padding-left: 10px;
+		}
+		.topEnd span:hover{
+			background-color:#f9f9f9;
+		}
+		/*分页部分*/
+		.el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev{
+			width: 85px;
+		}
+		.el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev, .el-pagination.is-background .el-pager li {
+			background-color: #fff;
+		}
+		.el-pagination.is-background .el-pager li:not(.disabled).active {
+			background-color: orange;
+		}
+
+		/*资料卡片弹出层style
+		The container <div> - needed to position the dropdown content */
+		.dropdown {
+			position: relative;
+			display: inline-block;
+		}
+
+		/* Dropdown Content (Hidden by Default) */
+		.dropdown-content {
+			display: none;
+			position: absolute;
+			background-color: #fff;
+			min-width: 160px;
+			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+			z-index: 1;
+		}
+
+		.dropdown:hover .dropdown-content {display: block;}
+		.pop-bgc-img{
+			background: url('/leek_bbs/statics/images/nosexbg.jpg') no-repeat right top;
+		}
+		.pop-bgc-img img {
+			vertical-align: middle;
+			width: 68px;
+			height: 68px;
+			border-radius: 50%;
+			padding: 10px;
+		}
+		.btn-layout{
+			padding-top: 1px;padding-left: 10px;
+		}
+		.pop-bgc-img .font-layout{
+			margin-top:15px;padding-left: 5px;
+		}
+		.btn-layout .btn1-layout{
+			margin-left: 6px;
+		}
+		.btn-layout .btn1:hover{
+			background-color: orange;
+		}
+		#editor > div:last-child{
+			height: 220px !important;
+		}
+		#lay-btn {
+			margin-top:10px;
+			padding-top: 10px;
+			border-top: 2px solid #E5E5E5 ;
+		}
+		#lay-btn >.layui-col-sm11 > button{
+			margin-right: -7px;
+			margin-bottom:10px ;
+		}
+		.btn-bg-2{
+			background-color: orange;
+		}
+	</style>
+</head>
+<body style="background-color: #F3F3F3">
+<div class="container-fluid">
+	<!-- 导航开始 -->
+	<div id="hmc">
+		<head_menu_comp :is_login="isLoginShow" ref="fo"></head_menu_comp>
+	</div>
+	<!-- 导航结束 -->
+	<div class="layui-container" id="daoDuApp" v-cloak="">
+		<div class="layui-row">
+			<span>
+				<a href="/leek_bbs/skipPage/index"><span class="glyphicon glyphicon-home"></span></a>&nbsp;>&nbsp;
+				<a href="/leek_bbs/skipPage/daodu">新闻导读</a>&nbsp;>&nbsp;
+				<a href="/leek_bbs/skipPage/index">{{condition}}</a></span>
+		</div>
+		<!--分类按钮开始-->
+		<div class="layui-row " id="lay-btn">
+			<div class="layui-col-sm11" >
+				<button class="layui-btn layui-btn-primary layui-btn-xs " @click="getPostData('NewHotPost',1)">最新热门</button>
+				<button class="layui-btn layui-btn-primary layui-btn-xs " @click="getPostData('NewEssencePost',1)">最新精华</button>
+				<button class="layui-btn layui-btn-primary layui-btn-xs " @click="getPostData('NewReplyPost',1)">最新回复</button>
+				<button class="layui-btn layui-btn-primary layui-btn-xs " @click="getPostData('NewPublishPost',1)">最新发表</button>
+<!--				<button class="layui-btn layui-btn-primary layui-btn-xs " @click="getPostData('SofaPost',1)">抢沙发</button>-->
+				<button class="layui-btn layui-btn-primary layui-btn-xs " id="myPost" @click="getPostData('MyPost',1)" v-show="checkLoginStatus">我的新闻帖子</button>
+			</div>
+			<div class="layui-col-sm1">
+				<button class="layui-btn layui-btn-primary layui-btn-warm layui-btn-xs btn2 " id="btnShow">发表新新闻贴</button>
+			</div>
+		</div>
+		<!--分类按钮结束-->
+
+		<!--内容头开始-->
+		<div class="layui-row bgc head1">
+			<div class="layui-col-sm8">
+				<span>标题</span>
+			</div>
+			<div class="layui-col-sm1" style="float: left;margin-left: -10px">
+				<span>新闻分类</span>
+			</div>
+			<div class="layui-col-sm1" style="float: left;margin-left: -3px">
+				<span>发布人</span>
+			</div>
+			<div class="layui-col-sm1" style="float: left">
+				<span style="margin-left: -8px">回复/查看</span>
+			</div>
+			<div class="layui-col-sm1" style="float: left">
+				<span style="margin-left: -8px">最后发表</span>
+			</div>
+		</div>
+		<!--内容头结束-->
+		<!--内容开始-->
+		<div class="layui-row bgc bgcHover" v-for="item in postInfo">
+			<div class="layui-row bgc content1 bgcHover-div" style="width: 96%;margin-left: 1%">
+				<div class="layui-col-sm8">
+					<span class="layui-icon layui-icon-dialogue" ></span>
+					<a :href="'/leek_bbs/skipPage/blogPage?theme_id='+item.id" target="_blank">{{item.title}}</a><!--?id='+item.user_id-->
+				</div>
+				<div class="layui-col-sm1 font-site">
+					<a href="#" style="padding-top: 1px;" class="wid">{{item.plate.plate_name}}</a>
+				</div>
+				<div class="layui-col-sm1 font-site " style="line-height: 11px">
+					<div class=" dropdown pop-bgc-img">
+						<a href="#"  class="wid" @mouseout="getUserInfo(item.user_id,item.total_experience)">{{item.post_author}}</a>
+						<!--资料卡片开始getGrade(50)-->
+						<div class="dropdown-content " style="width: 280px; height:150px;">
+							<div class="layui-row">
+								<div class="layui-col-sm3">
+									<img  :src="'/leek_bbs/'+leadUserInfo.picture" alt="我是一个头像">
+								</div>
+								<div class="layui-col-sm7">
+									<div class="layui-row font-layout" style="margin-left: -5px;color: #974c19;font-weight: bold">
+										<div class="layui-col-sm12">
+											{{leadUserInfo.another_name}}
+										</div>
+									</div>
+									<div class="layui-row font-layout" style="margin-left: -5px;color: #974c19;">
+										<div class="layui-col-sm12">
+											{{leadUserInfo.personalized_sign}}
+										</div>
+									</div>
+								</div>
+								<div class="layui-col-sm2 font-layout" style="word-break: break-word;color: #999 !important;padding-left: 0px;">
+									{{gradeInfo.name}}
+								</div>
+							</div>
+							<div class="layui-row">
+								<div class="layui-col-sm12 btn-layout">
+									<button class="layui-btn layui-btn-primary layui-btn-xs btn1">收听他</button>
+									<button class="layui-btn layui-btn-primary layui-btn-xs btn1 btn1-layout">加为好友</button>
+									<button class="layui-btn layui-btn-primary layui-btn-xs btn1 btn1-layout">发送消息</button>
+									<button class="layui-btn layui-btn-primary layui-btn-xs btn1 btn1-layout">打个招呼</button>
+									<button class="layui-btn layui-btn-primary layui-btn-xs btn1" style="margin-left: 0px;margin-top: -6px">给我留言</button>
+								</div>
+							</div>
+							<div style="background-color:#F3F3F3;height: 25px"></div>
+						</div>
+						<!--资料卡片结束-->
+					</div>
+
+					<p style="padding-top: 4px;"  class="wid"><em>{{changePublishTime(item.publish_time)}}</em></p>
+				</div>
+				<div class="layui-col-sm1 font-site" style="line-height: 11px;">
+					<a href="#"  class="wid">{{item.browse_count}}</a>
+					<p style="padding-top: 4px;"  class="wid"><em>{{item.reply_count}}</em></p>
+				</div>
+				<div class="layui-col-sm1 font-site" style="line-height: 11px">
+					<a href="#"  class="wid" >{{item.last_reply}}</a>
+					<p style="padding-top: 4px;" class="wid"><em>{{changePublishTime(item.last_reply_time)}}</em></p>
+				</div>
+			</div>
+		</div>
+		<!--内容结束-->
+		<!--分页部分-->
+		<div id="demo2-2" style="float: right;margin-top: 25px;">
+			<el-pagination
+					background
+					layout="prev, pager, next"
+					prev-text="上一页"
+					next-text="下一页"
+					@size-change="handleSizeChange"
+					@current-change="handleCurrentChange"
+					:current-page=currentPage
+					:page-size=pageSize
+					:total=totalCount>
+			</el-pagination>
+		</div>
+		<!--返回顶部-->
+		<div class="topEnd" style="position:absolute; left: 50%;margin-left: 560px;top: 50%;margin-top: 400px" >
+			<span class="layui-icon layui-icon-top" onclick="window.scrollTo('0','0')" style="font-size: 40px;"></span>
+		</div>
+	</div>
+
+</div>
+
+<script src="/leek_bbs/statics/component/common_import.js"></script>
+<!-- vue-element插件 -->
+<script src="/leek_bbs/statics/vue/element-ui/index.js"></script>
+<script src="/leek_bbs/statics/component/head_menu.js"></script>
+<!--富文本编辑器-->
+<script src="/leek_bbs/statics/component/wangEditor.min.js"></script>
+<script src="/leek_bbs/statics/component/wangEditCommon.js"></script>
+<!--发表新主题弹出框开始-->
+<script>
+
+
+
+    setTimeout(function () {
+        new Vue({
+            el:"#daoDuApp",
+            data:{
+                pageSize:10,			//每页显示多少条数据
+                currentPage:1,		//当前页
+                totalCount:0,		//总数据条数
+                login_userId:'', //当前登录的用户id
+				checkLoginStatus:false,
+                postInfo:[],	//帖子信息
+                chooseSelect: "SelectPost", //选择查看的模块
+                leadUserInfo:{},
+                gradeInfo:{},//等级信息
+                plateId: '', //所选版块id
+                condition:'全部'
+            },
+            methods:{
+                checkLogin(){
+                  if (userInfo!=null){
+                      this.login_userId=userInfo.id;
+                      this.checkLoginStatus =true;
+				  }
+				},
+                getGrade(total){
+                    var that = this;
+                    $.ajax({
+                        type:"post",
+                        url: "/leek_bbs/bbs/user/getGrade",
+                        data:{
+                            totalExperience:total,
+                        },
+                        dataType: "json",
+                        success:function (response) {
+                            //console.log(response);
+                            that.gradeInfo = response;
+                            //console.log(that.gradeInfo);
+                        },
+                        error: function(error){
+                            console.log("请求失败"+error);
+                        }
+                    })
+                },
+                /*获取用户信息*/
+                getUserInfo(userId,totalExperience){
+                    var that = this;
+                    $.ajax({
+                        type:"post",
+                        url: "/leek_bbs/bbs/userPost/leadUserInfo",
+                        data:{
+                            userId:userId
+                        },
+                        dataType: "json",
+                        success:function (response) {
+                            // console.log(response);
+                            that.leadUserInfo =response;
+                            // console.log(that.leadUserInfo);
+                            that.getGrade(response.experience.total_experience);
+                        },
+                        error: function(error){
+                            console.log("请求失败"+error);
+                        }
+                    })
+                },
+                // 将页码，及每页显示的条数以参数传递提交给后台
+                getPostData(chooseSelect,tag){
+                    var that = this;
+                    if(tag!=null){
+                        that.currentPage = 1;
+                    }
+                    $.ajax({
+                        type: "post",
+                        url: "/leek_bbs/bbs/userPost/findClassifyPost",
+                        data:{
+                            // 每页显示的条数
+                            PageSize:that.pageSize,
+                            // 显示第几页
+                            PageCurrent:that.currentPage,
+                            //查看模块
+                            chooseSelect:chooseSelect,
+                            //当前登录的用户id
+                            userId:that.login_userId,
+                        },
+                        dataType:"json",
+                        success: function(response) {
+                            // console.log(response);
+                            that.postInfo = response.list;		//将数据给postInfo
+                            // console.log(that.postInfo)
+                            // 将数据的长度赋值给totalCount
+                            that.totalCount=response.total,	//将数据总条数赋值给totalCount
+                                that.chooseSelect = chooseSelect; //将选择的查看方式重置
+                            //console.log(that.totalCount)
+                        },
+                        error: function(error){
+                            console.log("请求失败"+error);
+                        }
+                    });
+                },
+                // 分页
+                // 每页显示的条数
+                handleSizeChange(val) {
+                    // console.log("我变了")
+                    /*  // 改变每页显示的条数
+                      this.PageSize=val
+                      // 点击每页显示的条数时，显示第一页
+                      this.getData(val,1)
+                      // 注意：在改变每页显示的条数时，要将页码显示到第一页
+                      this.currentPage=1*/
+                },
+                // 显示第几页
+                handleCurrentChange(val) {
+                    var that = this;
+                    //console.log("我也变了")
+                    //console.log(val);
+                    that.currentPage =val;
+                    this.getPostData(that.chooseSelect);
+                    /*  // 改变默认的页数
+                      this.currentPage=val
+                      // 切换页码时，要获取每页显示的条数
+                      this.getData(this.PageSize,(val)*(this.PageSize))*/
+                },
+                /*时间转换方法*/
+                changePublishTime(dateTimeStamp){
+                    var minute = 1000 * 60;
+                    var hour = minute * 60;
+                    var day = hour * 24;
+                    var halfamonth = day * 15;
+                    var month = day * 30;
+                    var year = day * 365;
+                    var now = new Date().getTime();
+                    var diffValue = now - dateTimeStamp;
+                    //console.log(diffValue);
+                    if(diffValue < 0){return;}
+                    var monthC =diffValue/month;
+                    var weekC =diffValue/(7*day);
+                    var dayC =diffValue/day;
+                    var hourC =diffValue/hour;
+                    var minC =diffValue/minute;
+                    var yearC = diffValue/year;
+                    if(yearC>=1){
+                        result=""+ parseInt(yearC) +"年前";
+                    }else if(monthC>=1){
+                        result="" + parseInt(monthC) + "月前";
+                    }else if(weekC>=1){
+                        result="" + parseInt(weekC) + "周前";
+                    }else if(dayC>=1){
+                        result=""+ parseInt(dayC) +"天前";
+                    }else if(hourC>=1){
+                        result=""+ parseInt(hourC) +"小时前";
+                    }else if(minC>=1){
+                        result=""+ parseInt(minC) +"分钟前";
+                    }else{
+                        result="刚刚";
+					}
+                    return result;
+                }
+            },
+            mounted:function () {
+                this.getPostData(this.chooseSelect);
+                this.checkLogin();
+                if (getUrlName("my_post")) {
+                    this.getPostData("MyPost",1);
+                    $("#myPost").addClass('btn-bg-2');
+                }
+
+            },
+            created(){
+                loadingLayui();
+            }
+        });
+    },200);
+	layui.use(['laypage','layer','element'], function(){
+		var layer = layui.layer;
+		var laypage = layui.laypage;
+		var element = layui.element;
+		/*发表新主题弹出层*/
+		$(document).on('click','#btnShow',function () {
+            if (userInfo==null){    //未登录直接跳转登录页面
+                layer.msg("请先登录...",{ icon: 2,time:'1500'},function () {
+                    layui.login();
+                });
+            }else if(userInfo!=null){
+                layer.open({
+                    type: 2,
+                    content: '/leek_bbs/skipPage/sendArticle' ,//这里content是一个普通的String
+                    area:['600px', '400px'],
+                    /*	btn: '发新帖',*/
+                    title:'新闻分类导航',
+					success: function (layero, index) {    //成功获得加载页面时，预先加载，将值从父窗口传到 子窗口
+                        let body = layer.getChildFrame('body', index);
+                        //意思是将rowselect[0].path这个值传递到子窗口的class="filepath"这个的文本框中，（预先加载）
+                        body.find("plateId").val();
+                    }
+                })
+			}
+		});
+	})
+
+	function loadingLayui(){
+            layui.define(['layer','element'], function(exports){
+                var layer = layui.layer;
+                var element = layui.element;
+               //console.log("这"+JSON.stringify(userInfo))
+                /*发表新主题弹出层*/
+                exports('openSendPost', function (plateId) {
+                    console.log("2222"+plateId)
+                    top.layer.open({
+                        type: 1,
+                        content: `
+				<div class="layui-container" style="width: 100%;height: 100%">
+		  <div class="layui-col-xs12">
+			<div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+			  <ul class="layui-tab-title">
+				<li class="layui-this">发表新闻帖子</li>
+			  </ul>
+			  <div class="layui-tab-content" style="height: 100px;">
+				<div class="layui-tab-item layui-show">
+					<div class="layui-col-xs12" style="margin-bottom:20px;">
+						<form class="form-inline">
+						  <div class="form-group">
+							标题:<input type="text" class="form-control" id="title" placeholder="请输入标题..." style="width:100%;">
+						  </div>
+						  <div style="margin-top: 20px">
+						  	<div id="editor"></div>
+						  </div>
+						</form>
+					</div>
+				</div>
+				<div class="layui-col-xs12">
+					<button class="layui-btn layui-btn-primary layui-btn-sm layui-btn-warm" style="float: right;margin-right:10px;" onclick="sendPost(userInfo.id,${plateId},userInfo.another_name)">发表帖子</button>
+				</div>
+			  </div>
+			</div>
+		  </div>
+		</div>` ,//这里content是一个普通的String
+                        area:['800px', '600px'],
+                        /*	btn: '发新帖',*/
+                        title:'发表新闻贴',
+                        success:function () {
+                            /*创建富文本编辑器*/
+							createEdit("editor");
+                        },
+
+                    });
+                });
+
+                //发表帖子
+                window.sendPost = function(userId,plateId,postAuthor){
+                    if($("#title").val()==null||$("#title").val()==''){
+                        layer.closeAll();
+                        ui.error("标题不能为空",1500,true);
+                    }else if(editor.txt.html()=='<p><br></p>'){
+                        layer.closeAll();
+                        ui.error("内容不能为空",1500,true);
+                    }else {
+                        axios.post("/leek_bbs/bbs/userPost/insertPost", {
+                            userId: userId,	//发帖用户id
+                            title: $("#title").val(), //获取当前帖子主题
+                            postAuthor: postAuthor, //帖子作者
+                            plateId: plateId, //帖子所在版块id
+                            content: editor.txt.html(), //内容
+                            publishTime: new Date().getTime(), //获取当前时间的时间戳
+                            lastReply: postAuthor,//默认设置自己为最后回复者
+                            lastReplyTime: new Date().getTime(), //默认获取当前时间戳
+                        }).then(function (response) {
+                            // var index = parent.layer.getFrameIndex(window.name); //获取上一层弹出层的索引
+                            //parent.layer.closeAll();	//关闭上一层弹出层
+                            layer.closeAll();
+                            // console.log(response);
+                            if (response.data == 1) {
+                                ui.success("发表新闻成功,等待审核", 1500, true);
+                            } else {
+                                ui.error("发表新闻失败", {icon: 5, time: '1500'});
+                            }
+                        });
+                    }
+				}
+            });
+	}
+
+	$(document).on('click','#lay-btn >.layui-col-sm11 > button',function () {
+	    removeCalss();
+		$(this).addClass('btn-bg-2');
+    });
+
+	function removeCalss() {
+		$('#lay-btn >.layui-col-sm11 > button').each(function () {
+			$(this).removeClass('btn-bg-2');
+        })
+    }
+
+    function getUrlName(name) {
+        let url = window.location.href;
+        if (url.indexOf(name) != -1){
+            return true;
+        } else {
+            return false;
+        }
+    }
+</script>
+</body>
+<!--发表新主题弹出框结束-->
+</html>

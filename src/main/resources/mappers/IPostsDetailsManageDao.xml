@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lindong.dao.IPostsDetailsManageDao">
+
+    <!--根据条件分页查询-->
+    <select id="paging" resultType="postDetails" parameterType="map">
+        select pd.*,u.another_name as pd_nickname
+        from post_details pd,user u
+        <where>
+             pd.pd_uid=u.id
+            <if test="post_id != null and post_id != ''">
+                and pd.post_id = #{post_id}
+            </if>
+            <if test="start_time != null and start_time != '' and end_time != null and end_time != ''">
+                and Date(pd.reply_time) between #{start_time} and #{end_time}
+            </if>
+            <if test="another_name != null and another_name != ''">
+                and u.another_name like CONCAT('%',#{another_name},'%')
+            </if>
+        </where>
+        limit #{index},#{pageSize}
+    </select>
+    <select id="getCount" parameterType="map" resultType="int">
+        select count(*)
+        from post_details pd,user u
+        <where>
+            pd.pd_uid=u.id
+            <if test="post_id != null and post_id != ''">
+                and pd.post_id = #{post_id}
+            </if>
+            <if test="start_time != null and start_time != '' and end_time != null and end_time != ''">
+                and Date(pd.reply_time) between #{start_time} and #{end_time}
+            </if>
+            <if test="another_name != null and another_name != ''">
+                and u.another_name like CONCAT('%',#{another_name},'%')
+            </if>
+        </where>
+    </select>
+    <!--批量删除数据-->
+    <delete id="deletePostsDetails" parameterType="java.util.List">
+        delete from post_details
+        <where>
+            <if test="ids != null and ids.size()>0">
+                <foreach collection="ids" open="and pid in (" item="id" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+</mapper>

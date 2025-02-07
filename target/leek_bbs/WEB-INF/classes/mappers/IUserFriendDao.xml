@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lindong.dao.IUserFriendDao">
+
+    <!-- 一对多关系映射 -->
+    <resultMap id="userFriendMap" type="friendGroup">
+        <id column="group_id" property="group_id"></id>
+        <result column="group_name" property="group_name"></result>
+        <collection property="userFriends" ofType="userFriend">
+            <id column="id" property="id"></id>
+            <result column="friend_id" property="friend_id"></result>
+            <association property="user" javaType="user">
+                <id column="uid" property="id"></id>
+                <result column="another_name" property="another_name"></result>
+                <result column="picture" property="picture"></result>
+                <result column="online_status" property="online_status"></result>
+            </association>
+        </collection>
+    </resultMap>
+
+    <select id="findAll" parameterType="java.lang.Integer" resultMap="userFriendMap">
+        select fg.group_id,fg.group_name,uf.id,u.id uid,u.another_name,u.picture,u.online_status
+        from (select * from friend_group where user_id=#{id}) fg
+        left join (select * from user_friend where user_id=#{id}) uf
+        on fg.group_id=uf.group_id
+        left join user u
+        on uf.friend_id=u.id;
+    </select>
+
+    <!--检查是否有请求-->
+    <select id="checkRequestFriend" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select count(*) from user_friend where user_id = #{userId} and friend_id =#{friendId} and status = 0;
+    </select>
+
+    <!--删除好友-->
+    <delete id="deleteFridends" parameterType="java.util.Map">
+      delete from user_friend where (user_id = #{userId} and friend_id = #{friendId}) or (user_id=#{friendId} and friend_id=#{userId})
+    </delete>
+    <!--添加好友-->
+    <insert id="addFriends" parameterType="java.util.Map">
+        insert into user_friend(user_id,friend_id,group_id,status,apply_time,postscript) values(#{userId},#{friendId},#{groupId},#{status},now(),#{postScript})
+    </insert>
+    <update id="alterUserFriend" parameterType="map">
+        update user_friend set status=#{status} where id=#{id}
+    </update>
+    <!--检查是否是好友-->
+    <select id="checkIsFriend" resultType="UserFriend" parameterType="java.util.Map">
+        select * from user_friend where user_id =#{userId} and friend_id = #{friendId} and status =1;
+    </select>
+    <!--查看用户好友分组-->
+    <select id="getUserFriendGroup" resultType="FriendGroup" parameterType="java.lang.Integer">
+        select * from friend_group where user_id = #{userId}
+    </select>
+
+
+</mapper>

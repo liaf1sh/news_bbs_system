@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lindong.dao.IUserDao">
+
+    <!--获取用户密码与加密盐-->
+    <select id="getPwdSalt" parameterType="java.lang.String" resultType="user" >
+        select id,password,salt,user_status from user where username=#{username}
+    </select>
+    <!--根据用户名获取用户信息-->
+    <select id="findByName" resultType="user" parameterType="string">
+        select id,username,another_name,age,sex,email,phone,picture,personalized_sign,register_time,last_login_time,
+        address,profession,online_status from user where username=#{username}
+    </select>
+    <!--根据用户id集合获取用户信息-->
+    <select id="listUser" resultType="user" parameterType="java.util.List">
+        select id,username,another_name,picture from user
+        <where>
+            <if test="ids != null and ids.size()>0">
+                <foreach collection="ids" open="and id in (" item="id" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <!--增加一条用户数据-->
+    <insert id="addUser" parameterType="java.util.Map">
+        insert into user(username,password,salt,another_name,email,register_time,register_ip) values
+        (#{username},#{password},#{salt},#{another_name},#{email},now(),#{register_ip})
+    </insert>
+    <!--更新用户数据-->
+    <update id="updateUser" parameterType="java.util.Map">
+        update user
+        <set>
+            <if test="another_name != null and another_name != ''">
+                another_name=#{another_name},
+            </if>
+            <if test="password != null and password != ''">
+                password=#{password},
+            </if>
+            <if test="salt != null and salt != ''">
+                salt=#{salt},
+            </if>
+            <if test="sex != null and sex != ''">
+                sex=#{sex},
+            </if>
+            <if test="picture != null and picture != ''">
+                picture=#{picture},
+            </if>
+            <if test="email != null and email != ''">
+                email=#{email},
+            </if>
+            <if test="phone != null and phone != ''">
+                phone=#{phone},
+            </if>
+            <if test="personalized_sign != null and personalized_sign != ''">
+                personalized_sign=#{personalized_sign},
+            </if>
+            <if test="last_login_time != null">
+                last_login_time=now(),
+            </if>
+            <if test="last_login_ip != null and last_login_ip != ''">
+                last_login_ip=#{last_login_ip},
+            </if>
+            <if test="address != null and address != ''">
+                address=#{address},
+            </if>
+            <if test="profession != null and profession != ''">
+                profession=#{profession},
+            </if>
+            <if test="online_status != null and online_status != ''">
+                online_status=#{online_status},
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <!--添加用户积分数据-->
+    <insert id="addIntegral" parameterType="int">
+        insert into integral(user_id) values (#{0})
+    </insert>
+    <!--添加用户经验数据-->
+    <insert id="addExperience" parameterType="int">
+        insert into experience(user_id) values (#{0})
+    </insert>
+    <!--添加用户经验数据-->
+    <insert id="addSign" parameterType="int">
+        insert into sign(user_id) values (#{0})
+    </insert>
+
+    <!--插入默认分组数据-->
+    <insert id="insertFriendGroup" parameterType="java.util.ArrayList">
+        insert into friend_group(group_name,user_id) values
+        <foreach collection="list" index="index" separator="," item="item">
+            (#{item.group_name},#{item.user_id})
+        </foreach>
+    </insert>
+
+    <!--获取用户总记录数-->
+    <select id="getUserCount" resultType="int">
+        select count(*) from user
+    </select>
+
+</mapper>

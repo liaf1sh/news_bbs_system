@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+    <!--易错点注意-->
+    <classPathEntry
+            location="E:\install_package\class\repository\mysql\mysql-connector-java\5.1.32\mysql-connector-java-5.1.32.jar" />
+    <context id="context1" targetRuntime="MyBatis3">
+        <!-- 序列化pojo -->
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin" />
+        <commentGenerator>
+            <property name="suppressDate" value="true" />
+            <property name="suppressAllComments" value="true" />
+        </commentGenerator>
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://localhost:3306/leek_bbs?characterEncoding=utf-8"
+                        userId="root" password="123" />
+        <javaModelGenerator targetPackage="com.lindong.domain"
+                            targetProject="src\main\java" />
+        <!--<sqlMapGenerator targetPackage="com.ld.dao"
+                         targetProject="src\main\java" />
+        <javaClientGenerator targetPackage="com.ld.dao"
+                             targetProject="src\main\java" type="XMLMAPPER" />-->
+        <table tableName="sys_warn" domainObjectName="SysWarn"
+               enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
+               enableSelectByExample="false" selectByExampleQueryId="false" >
+            <property name="useActualColumnNames" value="true"/>
+        </table>
+    </context>
+</generatorConfiguration>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lindong.dao.IPostReportDao">
+
+    <!--<resultMap id="postReportMap" type="postReport">
+        <id property="id" column="id"></id>
+        <result property="pid" column="pid"></result>
+        <result column="r_type" property="r_type"></result>
+        <result column="r_content" property="r_content"></result>
+        <result column="r_time" property="r_time"></result>
+        <result column="r_status" property="r_status"></result>
+        <result column="username" property="username"></result>
+        <association property="post" column="pid" javaType="post" select="getPost">
+            <result property="title" column="title"></result>
+            <result property="content" column="content"></result>
+            <result property="publish_time" column="publish_time"></result>
+        </association>
+        <association property="postDetails" column="pid" javaType="postDetails" select="getPostDetails">
+            <result property="pd_content" column="pd_content"></result>
+            <result property="reply_time" column="reply_time"></result>
+        </association>
+    </resultMap>-->
+
+    <!--根据条件分页查询-->
+    <select id="paging" resultType="postReport" parameterType="map">
+        select pr.*,u.username
+        from post_report pr,user u
+        <where>
+            pr.uid=u.id
+            <if test="rp_type != null and rp_type != ''">
+                and pr.rp_type like CONCAT('%',#{rp_type},'%')
+            </if>
+            <if test="r_status != null and r_status != ''">
+                and pr.r_status like CONCAT('%',#{r_status},'%')
+            </if>
+            <if test="start_time != null and start_time != '' and end_time != null and end_time != ''">
+                and Date(pr.r_time) between #{start_time} and #{end_time}
+            </if>
+        </where>
+        limit #{index},#{pageSize}
+    </select>
+    <select id="getCount" parameterType="map" resultType="int">
+        select count(*)
+        from post_report pr,user u
+        <where>
+            pr.uid=u.id
+            <if test="rp_type != null and rp_type != ''">
+                and pr.rp_type = #{rp_type}
+            </if>
+            <if test="r_status != null and r_status != ''">
+                and pr.r_status = #{r_status}
+            </if>
+            <if test="start_time != null and start_time != '' and end_time != null and end_time != ''">
+                and Date(pr.r_time) between #{start_time} and #{end_time}
+            </if>
+        </where>
+    </select>
+
+    <!--处理举报数据状态-->
+    <update id="alterPostReport" parameterType="int">
+        update post_report set r_status=1 where id=#{id}
+    </update>
+    <!--批量删除数据-->
+    <delete id="deletePostReport" parameterType="java.util.List">
+        delete from post_report
+        <where>
+            <if test="ids != null and ids.size()>0">
+                <foreach collection="ids" open="and id in (" item="id" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <select id="getPost" parameterType="int" resultType="post">
+        select title,content,publish_time from post where id=#{0}
+    </select>
+    <select id="getObjectById" parameterType="int" resultType="postDetails">
+        select pd_content,reply_time from post_details where pid=#{0}
+    </select>
+
+    <!--插入系统提醒数据-->
+    <insert id="insertWarnList" parameterType="map">
+        insert into sys_warn(uid,title,content,w_time) values (#{uid},#{title},#{content},now())
+        <!--item就是map里的用户id集合中的每个用户id，要用","分割每一条数据，最后要";"结尾
+        <foreach collection="ids" item="uid" separator="," close=";">
+            (#{uid},#{title},#{content},now())
+        </foreach>-->
+    </insert>
+
+    <!--查询用户对该主题或帖子存在举报数据-->
+    <select id="selectPostReport" parameterType="java.util.Map" resultType="int">
+        select count(*) from post_report where uid=#{uid} and pid=#{pid} and rp_type=#{rp_type}
+    </select>
+    <!--插入举报数据-->
+    <insert id="insertPostReport" parameterType="java.util.Map" >
+        insert into post_report
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="uid != null">
+                uid,
+            </if>
+            <if test="pid != null and pid != ''">
+                pid,
+            </if>
+            <if test="r_type != null and r_type != ''">
+                r_type,
+            </if>
+            <if test="r_content != null and r_content != ''">
+                r_content,
+            </if>
+            <if test="rp_type != null and rp_type != ''">
+                rp_type,
+            </if>
+            r_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="uid != null">
+                #{uid},
+            </if>
+            <if test="pid != null and pid != ''">
+                #{pid},
+            </if>
+            <if test="r_type != null and r_type != ''">
+                #{r_type},
+            </if>
+            <if test="r_content != null and r_content != ''">
+                #{r_content},
+            </if>
+            <if test="rp_type != null and rp_type != ''">
+                #{rp_type},
+            </if>
+            now()
+        </trim>
+    </insert>
+
+</mapper>

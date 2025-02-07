@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>个人资料</title>
+    <link rel="stylesheet" href="/leek_bbs/statics/yu-ui/js_css/yu.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/layui/css/layui.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/bootstrap-3.3.7/css/bootstrap.min.css">
+    <!-- vue-element插件样式 -->
+    <link rel="stylesheet" href="/leek_bbs/statics/vue/element-ui/index.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/css/head.css">
+    <style>
+        .p-mpb{
+            margin-top: 60px;
+            padding:10px 5px;
+            border-radius:4px;
+            background-color: #fff;
+        }
+        .p-mpb .col-sm-2 a{
+            color: #333;
+        }
+        .p-mpb .col-sm-2 a:hover{
+            color: #ff6f3d;
+        }
+        .row .layui-tab > ul > .layui-this{
+            border-top: 2px solid #ff8b3d;
+        }
+        .row .layui-tab > ul{
+            margin-bottom: 1px;
+        }
+        .row .layui-tab > ul > li:first-child{
+            margin-left: 15px;
+        }
+        ul > li:hover{
+            color: #ff6f3d;
+        }
+        .layui-tab-content .layui-show .row{
+            margin-left:15px;
+            padding:10px 2px;
+            width: 96%;
+        }
+        #editor > div:last-child{
+            height: 150px !important;
+        }
+        /*分页部分*/
+        .el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev{
+            width: 85px;
+        }
+        .el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev, .el-pagination.is-background .el-pager li {
+            background-color: #efefef;
+        }
+        .el-pagination.is-background .el-pager li:not(.disabled).active {
+            background-color: #ff6f3d;
+        }
+        .m-layer-title {
+            height: 80px !important;
+            background: url(/leek_bbs/statics/images/bg.jpg) center no-repeat;
+        }
+        img.img-size{
+            width: 60px;
+            height: 60px
+        }
+        .m-btn > button{
+            font-size: 14px;
+            padding: 0 20px;
+            background-color: #5FB878;
+            color: #fff;
+            border-radius: 3px;
+        }
+        .layui-layedit{
+            border-style: solid solid none;
+        }
+        #layer-3 .m-btn .layui-btn{
+            margin-left: 6px;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <!-- 导航开始 -->
+    <div id="hmc">
+        <head_menu_comp :is_login="isLoginShow" ref="fo"></head_menu_comp>
+    </div>
+    <!-- 导航结束 -->
+    <!-- 中间主体部分 -->
+    <div class="container" id="personalApp" v-cloak="">
+        <div class="row">
+            <span>
+                <a href="index.html"><span class="glyphicon glyphicon-home"></span></a>&nbsp;>&nbsp;
+<!--                <a href="javascript:;">论坛</a>&nbsp;>&nbsp;-->
+                <span>个人资料</span>
+            </span>
+        </div>
+
+        <div class="row p-mpb">
+            <div class="col-sm-3 col-sm-offset-1">
+                <div style="position: absolute;left:-70px;top:-50px;">
+                    <div class="col-sm-6">
+                        <img :src="'/leek_bbs/'+basicUserInfo.picture" alt="" width="120px" height="120px"  >
+                    </div>
+                    <div class="col-sm-6">
+                        <h4 style="margin-top: 62px;">{{basicUserInfo.another_name}}</h4>
+                        <span style="opacity: .6"><a href="javascript:;">{{basicUserInfo.personalized_sign}}</a></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2 col-sm-offset-6" style="padding: 0;height: 100px;">
+                <div style="float: right;margin-right: 8px;" v-if="userInfo!=null && checkLeave">
+                    <h6>
+                        <img src="/leek_bbs/statics/images/flw_ico.png" alt="">&nbsp;
+                        <span v-if="isShowCare"><a href="javascript:;" @click="addUserAttention()">关注</a></span><span v-else><a href="javascript:;" @click="deleteCare()">取消关注</a></span></h6>
+<!--                    <h6><img src="/leek_bbs/statics/images/friend.gif" alt="">&nbsp;<a href="javascript:;" id= "friendState" @click="addFriends"><span v-if="isShow">加好友</span><span v-else>解除好友</span></a></h6>-->
+<!--                    <h6><a href="javascript:;" @click="openWindow1()"><img src="/leek_bbs/statics/images/pmto.gif" alt="">&nbsp;发送消息</a></h6>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 20px;">
+            <div class="layui-tab layui-tab-card" lay-filter="tabPer">
+                <ul class="layui-tab-title">
+                    <li id="person" @click="getUserInfoById()"  class="layui-this">个人资料</li>
+                    <li @click="getUserPostById('userPost',1)">发布新闻贴</li>
+                  <!--  <li >日志</li>-->
+                    <li @click="getUserPostShare('userPostShare',1)">分享</li>
+                    <li @click="getUserLeaveInfo('userLeaveInfo',1)" >留言板</li><!---->
+                </ul>
+                <div class="layui-tab-content" style="height: 340px;background-color: #fff;">
+                    <div class="layui-tab-item layui-show">
+                        <div class="row"><b>{{basicUserInfo.another_name}}</b></div>
+                        <div class="row" ><span style="opacity: .8;">邮箱状态</span>&emsp;<span>{{emailCheck}}</span></div>
+                        <div class="row" style="border-bottom: 1px solid #e5e5e5;">
+                            <span style="opacity: .8;">统计信息</span>&emsp;
+<!--                            <span>好友数</span>&nbsp;<span>{{userFriendsCount}}</span>&nbsp;|&nbsp;-->
+                            <span>发布新闻贴数</span>&nbsp;<span>{{userPostCount}}</span>&nbsp;|&nbsp;
+                            <span>回复数</span>&nbsp;<span>{{userPostDetailCount}}</span>&nbsp;|&nbsp;
+<!--                            <span>日志数</span>&nbsp;<span>{{userLogCount}}</span>&nbsp;|&nbsp;-->
+                            <span>积分数</span>&nbsp;<span>{{integral.total_integral}}</span>&nbsp;|&nbsp;
+                            <span>好评数</span>&nbsp;
+                            <span v-if="basicUserInfo.post_topTotalCount!=null&&basicUserInfo.post_topTotalCount!=''">
+                                {{basicUserInfo.post_topTotalCount}}
+                            </span>
+                            <span v-else>0</span>
+                            &nbsp;|&nbsp;
+                            <span>分享数</span>&nbsp;<span>{{basicUserInfo.share_totalCount}}</span>
+                        </div>
+                        <div class="row" style="border-bottom: 1px solid #e5e5e5;">
+                            <div class="col-sm-3" style="padding-left: 0;">
+                                <span style="opacity: .8;">性别:</span>&emsp;<span>{{basicUserInfo.sex}}</span>
+                            </div>
+                            <div class="col-sm-2"><span style="opacity: .8;">年龄:</span>&emsp;<span>{{basicUserInfo.age}}</span></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4" style="padding-left: 0;">
+                                <div style="padding: 5px 0;"><b>活跃情况</b></div>
+                                <div style="padding: 5px 0;">
+                                    <span>头衔</span>&emsp;<span>{{grade.name}}</span>&nbsp;
+                                    <img style="vertical-align:text-top;" :src="'/leek_bbs/statics/images/'+grade.img" alt="">
+                                </div>
+                                <div style="padding: 5px 0;"><span>注册时间</span>&emsp;
+                                    <span v-if="basicUserInfo.register_time!=null&&basicUserInfo.register_time!=''">
+                                        {{formatDate(new Date(basicUserInfo.register_time))}}
+                                    </span>
+                                    <span v-else>暂无</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-4" style="margin-top: 10px;">
+                                <div style="padding: 5px 0;"><br><span >最后访问</span>&emsp;
+                                    <span v-if="basicUserInfo.last_login_time!=null&&basicUserInfo.last_login_time!=''">
+                                        {{formatDate(new Date(basicUserInfo.last_login_time))}}
+                                    </span>
+                                    <span v-else>暂未登录</span>
+                                </div>
+                                <div style="padding: 5px 0;"><span>上次发表</span>&emsp;
+                                    <span v-if="lastPostTime!=null&&lastPostTime!=''">
+                                        {{formatDate(new Date(lastPostTime.publish_time))}}
+                                    </span>
+                                    <span v-else>暂无</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="layui-tab-item">
+                        <div class="row">
+                            <span><a href="javascript:;">新闻贴</a>&nbsp;|&nbsp;<a href="javascript:;">回复</a></span>
+                        </div>
+                        <div class="row" style="border: 1px solid #e5e5e5;border-radius:2px;background-color: #f9f9f9;">
+                            <div class="col-sm-4"><span>新闻</span></div>
+                            <div class="col-sm-1 col-sm-offset-4"><span>分类</span></div>
+                            <div class="col-sm-1" style="padding: 0;"><span>回复/查看</span></div>
+<!--                            <div class="col-sm-1"><span>最后发帖</span></div>-->
+                        </div>
+                       <div v-if="postList!=null&&postList!=''">
+                           <div style="font-size:12px;border-bottom: 1px solid #e5e5e5;" v-for="(item,index) in postList" class="row" >
+                               <div class="col-sm-4" style="line-height:32px;"><img src="/leek_bbs/statics/images/folder_new.gif" alt=""><a :href="'/leek_bbs/skipPage/blogPage?theme_id='+item.id" style="margin-left: 6px;">{{item.title}}</a></div>
+                               <div class="col-sm-1 col-sm-offset-4" style="padding-top: 5px;"><span>{{item.plate.plate_name}}</span></div>
+                               <div class="col-sm-1" style="padding: 5px;"><span>{{item.reply_count}}/{{item.browse_count}}</span></div>
+<!--                               <div class="col-sm-2"><span>{{item.last_reply}}</span><br><span>{{item.last_reply_time | formatDate}}</span></div>-->
+                           </div>
+                       </div>
+                        <div v-else class="row" style="font-size:12px;border-bottom: 1px solid #e5e5e5;" >
+                            <h5 align="center">该用户暂未发表主题</h5>
+                        </div>
+                    </div>
+                    <div class="layui-tab-item">
+                        <div v-if="userShareInfo!=null && userShareInfo!=''">
+                            <div  class="row" v-for="(item,index) in userShareInfo"   style="font-size:12px;border-bottom: 1px solid #e5e5e5;"  >
+                                <div class="col-sm-4" style="line-height:32px;"><img src="/leek_bbs/statics/images/folder_new.gif" alt=""><a :href="'/leek_bbs/skipPage/blogPage?theme_id='+item.postShare.post_id" style="margin-left: 6px;">{{item.title}}</a></div>
+                                <div class="col-sm-1 col-sm-offset-4" style="padding-top: 5px;"><span>{{item.postShare.plate_name}}</span></div>
+                                <div class="col-sm-1" style="padding: 5px;"><span>{{item.reply_count}}/{{item.browse_count}}</span></div>
+<!--                                <div class="col-sm-2"><span>分享于:{{item.postShare.share_time|formatDate}}</span></div>-->
+                            </div>
+                        </div>
+                        <div v-else class="row" style="font-size:12px;border-bottom: 1px solid #e5e5e5;" >
+                            <h5 align="center">该用户暂无分享主题</h5>
+                        </div>
+                    </div>
+                    <div class="layui-tab-item">
+                        <div class="row" style="border-bottom: 1px solid #e5e5e5;">
+                            <div class="col-md-9" style="width: 100%;background-color: #fff;" v-if="userInfo==null">
+                                <div>
+                                    <div style="background:  #FAFBFC; height: 35px; width: 100%">
+                                        <ul class="list-inline" style="padding-top: 8px;">
+                                            <li><span class="glyphicon glyphicon glyphicon glyphicon-bold" aria-hidden="true"></span></li>
+                                            <li><span class="glyphicon glyphicon glyphicon glyphicon-italic" aria-hidden="true"></span></li>
+                                            <li><span class="glyphicon glyphicon glyphicon-align-left" aria-hidden="true"></span></li>
+                                            <li><span class="glyphicon glyphicon glyphicon-align-center" aria-hidden="true"></span></li>
+                                            <li><span class="glyphicon glyphicon glyphicon-align-right" aria-hidden="true"></span></li>
+                                            <li><span class="glyphicon glyphicon glyphicon-picture" aria-hidden="true"></span></li>
+                                        </ul>
+                                        <div style="padding-top:50px; padding-left: 220px; height: 140px" >
+                                            <label>你需要登陆后才能留言</label>
+                                            <a href="javascript:;" style="color:lightskyblue" onclick="layui.register()">立即注册</a>|
+                                            <a herf="javascript:;" onclick="layui.login()" style="color:lightskyblue">立即登录</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="padding-top: 100px;padding-bottom: 5px; padding-left: 15px">
+                                    <a href="" style="float: right;">留言规则</a>
+                                </div>
+                            </div>
+                            <div id="editor" v-if="userInfo!=null && checkLeave"></div>
+                            <div style="float: right;margin-right: 10px;padding: 10px;" v-if="userInfo!=null && checkLeave">
+                                <a class="btn btn-sm" style="width:68px;color:#fff;background-color: #ff6f3d;" @click="insertLeavePost" >留言</a>
+                            </div>
+                        </div>
+                        <div class="row" v-for="item in leaveMessageList" style="border-bottom: 1px solid #e5e5e5;">
+                            <div class="col-sm-1" style="padding: 0;">
+                                <img :src="'/leek_bbs/'+item.leave_photo" class="img-circle" width="54px" height="54px" alt="">
+                            </div>
+                            <div class="col-sm-8" style="margin-left:-22px;padding: 0;">
+                                <b style="font-size:13px;">{{item.leave_name}}</b>&emsp;
+                                <span style="font-size:12px;opacity: 0.7;">{{item.leave_time |formatDate}}</span>
+                                <div v-html="item.leave_content"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--分页部分-->
+                    <div class="row" v-if="pagingShow">
+                        <div style="float: right;margin-top: 25px;">
+                            <el-pagination
+                                    background
+                                    layout="prev, pager, next"
+                                    prev-text="上一页"
+                                    next-text="下一页"
+                                    @current-change="handleCurrentChange"
+                                    :current-page=currentPage
+                                    :page-size=pageSize
+                                    :total=totalCount><!--@size-change="handleSizeChange"-->
+                            </el-pagination>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚部分 -->
+    <footer>
+        <div class="row">
+            <p>
+                <span>20203631王瑜-20203638丁乐陶</span>
+<!--                <span>版权所有&nbsp;All Rights Reserved.</span>-->
+            </p>
+        </div>
+    </footer>
+</div>
+<script src="/leek_bbs/statics/component/common_import.js"></script>
+<!-- vue-element插件 -->
+<script src="/leek_bbs/statics/vue/element-ui/index.js"></script>
+<script src="/leek_bbs/statics/component/head_menu.js"></script>
+<!--wangEditor编辑器-->
+<script src="/leek_bbs/statics/component/wangEditor.min.js"></script>
+<script src="/leek_bbs/statics/component/wangEditCommon.js"></script>
+<script>
+    let height;
+    let personalApp;
+    setTimeout(function () {
+        personalApp = new Vue({
+            el:"#personalApp",
+            data:{
+                isShowCare:true,
+                leaveMessageList:[], //留言信息
+                userInfo:userInfo,  //当前登录的用户信息
+                basicUserInfo:{picture:"statics/images/01_small.gif"}, //用户基本信息
+                integral:"",    //用户积分信息
+                grade:{img:"/grade_img/grade_img_01.png"}, //用户等级信息
+                userFriendsCount:"", //用户好友数
+                userPostCount:"",   //用户发表主题数
+                userPostDetailCount:"", //用户回帖数
+                userLogCount: "", //用户日志数
+                lastPostTime:{publish_time:''}, //用户最后发帖时间
+                pagingShow:'',  //分页显示状态
+
+                postList:[], //用户主题数据信息
+
+                userShareInfo:[],//用户分享数据
+                selectInfoType:'', //用户查看数据类型
+                isShow:true,
+                online_status:false,
+                userFriendState:'', //好友状态,0表示是好友,1还不是好友
+                postScript:'', //附言
+                pageSize:2,			//每页显示多少条数据
+                currentPage:1,		//当前页
+                totalCount:0,		//总数据条数
+            },
+            methods:{
+                /*加好友2*/
+                addFriendTwo(){
+                    var that = this;
+                    if(this.userFriendState==0){
+                        ui.confirm("您确定要解除关系吗?",function (z) {
+                            if(z){
+                                axios.post("/leek_bbs/bbs/userFriend/deleteFriends",{
+                                    userId:userInfo.id,
+                                    friendId:getUrlParam('id')
+                                }).then((response)=>{
+                                    if(response.data==0){
+                                        that.userFriendState=0;
+                                        ui.error("解除好友失败",1500,true)
+                                        that.checkIsFriend();
+                                    }else{
+                                        that.userFriendState=1;
+                                        ui.success("解除好友成功",1500,true)
+                                        that.isShow=true;
+                                    }
+                                })
+                            }
+                        })
+                    }else{
+                        layui.use(['laypage','layer','element'], function(){
+                            var layer = layui.layer;
+                            var laypage = layui.laypage;
+                            var element = layui.element;
+                            /*发表新主题弹出层*/
+                            if (userInfo==null){    //未登录直接跳转登录页面
+                                layer.msg("请先登录...",{ icon: 2,time:'1500'},function () {
+                                    layui.login();
+                                });
+                            }else if(userInfo!=null){
+                                layer.open({
+                                    type: 2
+                                    ,area: ['410px', '280px']
+                                    ,shade: 0.3
+                                    //  ,maxmin: true
+                                    ,offset: "auto"
+                                    ,content: '/leek_bbs/skipPage/addFriends'//这里content是一个普通的String
+                                    ,resize:false //是否可以伸拉
+                                    ,title:'添加好友'
+                                    ,success:function (layero,index) {
+                                        var iframe = window['layui-layer-iframe' + index];
+                                        iframe.child(personalApp.basicUserInfo);    //将数据传给子页面的child方法
+                                    }
+                                })
+                            }
+                        });
+                    }
+                },
+                /*检查是否是好友*/
+                checkIsFriend(){
+                    if(userInfo!=null&&userInfo!=''){
+                        axios.post("/leek_bbs/bbs/userFriend/checkIsFriend",{
+                            userId:userInfo.id,
+                            friendId:getUrlParam('id'),
+                        }).then((response)=>{
+                            //console.log(response);
+                            if (response.data!=""){
+                                this.isShow = false;
+                                this.userFriendState=0; //0表示是好友,1还不是好友
+                            }else{
+                                this.isShow = true;
+                                this.userFriendState=1;
+                            }
+                        })
+                    }
+                },
+                /*加好友1*/
+                addFriends(){
+                    axios.post("/leek_bbs/bbs/userFriend/checkRequestFriend",{
+                        userId:userInfo.id,
+                        friendId:getUrlParam('id')
+                    }).then((response)=>{
+                        var data = response.data;
+                        if(data.code=="500020"){
+                            this.addFriendTwo();
+                        }else if(data.code=="600001") {
+                            ui.alert(data.msg,1500,true)
+                        }else{
+                            ui.error(data.msg,1500,true)
+                        }
+                    })
+
+                },
+                /*查看留言*/
+                getUserLeaveInfo(selectInfoType,tag){
+                    if(tag!=null){
+                        this.currentPage = 1;
+                    }
+                    axios.post("/leek_bbs/bbs/userInfo/getUserLeaveInfo",{
+                        userId:getUrlParam('id'),
+                        pageSize:this.pageSize,			//每页显示多少条数据
+                        currentPage:this.currentPage,		//当前页
+                        totalCount:this.totalCount,		//总数据条数
+                    }).then((response)=>{
+                        console.log(response);
+                        this.leaveMessageList= response.data.leaveList;
+                        this.totalCount=response.data.leaveTotal;
+                        this.selectInfoType = selectInfoType;
+                        if(this.leaveMessageList.length<1){
+                            this.pagingShow =false;
+                        }else{
+                            this.pagingShow =true;
+                        }
+                    })
+                },
+                /*留言*/
+                insertLeavePost(){
+                    axios.post("/leek_bbs/bbs/userInfo/insertLeavePost",{
+                        leaveUserId:this.userInfo.id,
+                        leaveName:this.userInfo.another_name,
+                        leavePhoto:this.userInfo.picture,
+                        leaveContent:editor.txt.html(),
+                        toUserId:getUrlParam('id'),
+                    }).then((response)=>{
+                        if(response.data!=0){
+                            layer.msg("留言成功...",{ icon: 6,time:'1500'});
+                            editor.txt.clear(); //清除编辑器的内容
+                            this.getUserLeaveInfo('userLeaveInfo',1)
+                        }
+                        if(response.data==0){
+                            layer.msg("留言失败...",{ icon: 5,time:'1500'});
+                        }
+                    })
+                },
+                /*格式化时间*/
+                formatDate(now) {
+                    var year=now.getFullYear();  //取得4位数的年份
+                    var month=now.getMonth()+1;  //取得日期中的月份，其中0表示1月，11表示12月
+                    var date=now.getDate();      //返回日期月份中的天数（1到31）
+                    var hour=now.getHours();     //返回日期中的小时数（0到23）
+                    var minute=now.getMinutes(); //返回日期中的分钟数（0到59）
+                    var second=now.getSeconds(); //返回日期中的秒数（0到59）
+                    return year+"-"+month+"-"+date+" "+hour+":"+minute+":"+second;
+                },
+                getUserInfoById(){
+                    axios.post("/leek_bbs/bbs/userInfo/getUserInfoById",{
+                        userId:getUrlParam('id'),
+                    }).then((response)=>{
+                        this.basicUserInfo = response.data.basicUserInfo; //用户基本信息
+                        console.log(this.basicUserInfo)
+                        this.integral = response.data.basicUserInfo.integral; //用户积分信息
+                        this.grade =response.data.grade;    //用户等级信息
+                        console.log(this.grade)
+                        this.userFriendsCount=response.data.userFriendsCount; //用户好友数
+                        this.userPostCount=response.data.userPostCount;//用户发表主题数
+                        this.userPostDetailCount=response.data.userPostDetailCount; //用户回帖数
+                        this.userLogCount=response.data.userLogCount; //用户日志数
+                        this.lastPostTime = response.data.lastPostTime; //用户最后发贴时间
+
+                        console.log(this.lastPostTime)
+                        this.pagingShow=false;//分页是否显示
+                        //console.log(response);
+                    })
+                },
+                getUserPostById(selectInfoType,tag){
+                    if(tag!=null){
+                        this.currentPage = 1;
+                    }
+                    axios.post("/leek_bbs/bbs/userInfo/getPostByUserId",{
+                        userId:getUrlParam('id'),
+                        pageSize:this.pageSize,			//每页显示多少条数据
+                        currentPage:this.currentPage,		//当前页
+                        totalCount:this.totalCount,		//总数据条数
+                    }).then((response)=>{
+                        this.postList = response.data.postList;
+                        this.totalCount=response.data.dataCount;
+                        this.selectInfoType = selectInfoType;
+                        if(this.postList.length>1){
+                            this.pagingShow=true;
+                        }else{
+                            this.pagingShow=false;
+                        }
+                        //this.pagingShow =true;
+                    })
+                },
+                getUserPostShare(userPostShare,tag){
+                    if(tag!=null){
+                        this.currentPage = 1;
+                    }
+                    axios.post("/leek_bbs/bbs/userInfo/getUserPostShare",{
+                        userId:getUrlParam('id'),
+                        pageSize:this.pageSize,			//每页显示多少条数据
+                        currentPage:this.currentPage,		//当前页
+                        totalCount:this.totalCount,		//总数据条数
+                    }).then((response)=>{
+                        this.userShareInfo = response.data.sharePostList;
+                        console.log(this.userShareInfo)
+                        this.totalCount = response.data.shareTotal;
+                        this.selectInfoType ='userPostShare';
+                        if(this.userShareInfo.length<1){
+                            this.pagingShow =false;
+                        }else{
+                            this.pagingShow =true;
+                        }
+                    })
+                },
+                // 显示第几页
+                handleCurrentChange(val) {
+                    this.currentPage =val;
+                    console.log(this.selectInfoType)
+                    if (this.selectInfoType=='userPost'){
+                        this.getUserPostById('userPost');
+                    }
+                    if (this.selectInfoType=='userPostShare'){
+                        this.getUserPostShare('userPostShare');
+                    }
+                    if (this.selectInfoType=='userLeaveInfo'){
+                        this.getUserLeaveInfo('userLeaveInfo');
+                    }
+
+                    console.log("当前页"+this.currentPage)
+                },
+                dateChangeFormat(time){
+                    //return layui.dateChangeFormat(time);
+                },
+                deleteCare(){
+                    ui.confirm('是否确定取消关注?',function (z) {
+                        if (z) {
+                            axios.post('/leek_bbs/bbs/care/deleteCare', {
+                                'uid': parseInt(userInfo.id),
+                                'aid': parseInt(getUrlParam("id"))
+                            }).then(response => {
+                                const res = response.data;
+                                if (res.code == "500020") {
+                                    ui.success("取消关注成功", 2000, true);
+                                    this.isShowCare = true;
+                                } else {
+                                    ui.error(res.msg, 2000, true);
+                                }
+                            }).catch(error => {
+                                ui.error("取消关注失败");
+                                console.log(error);
+                            })
+                        }
+                    });
+                },
+                selectCare(){
+                    if (userInfo != null) {
+                        axios.post('/leek_bbs/bbs/care/selectCare',{
+                            'uid': userInfo.id,
+                            'aid': getUrlParam("id")
+                        }).then(response => {
+                            const res = response.data;
+                            console.log(res);
+                            if (res.code == "500020") {
+                                this.isShowCare = false;
+                            }else {
+                                this.isShowCare = true;
+                            }
+                        }).catch(error => {
+                            console.log(error);
+                        })
+                    }
+                },
+                addUserAttention(){
+                    if (userInfo != null){
+                        axios.post('/leek_bbs/bbs/postBrowse/addAttention',{
+                            uid:parseInt(userInfo.id),
+                            aid:parseInt(getUrlParam("id"))
+                        }).then(response => {
+                            let data = response.data;
+                            if (data.msg == "success"){
+                                ui.success(`关注成功`,2000,true);
+                                this.isShowCare = false;
+                            } else if (data.code == "600016") {
+                                ui.alert(data.msg,2000,true);
+                            }else {
+                                ui.error(data.msg,2000,true);
+                            }
+                        })
+                    } else {
+                        layui.login();
+                    }
+                },
+                queryUserStatus(user_id){
+                    axios.get(`/leek_bbs/findUserStatus?uid=${user_id}`).then(response => {
+                        let data = response.data;
+                        //console.log(data);
+                        if (data == "1"){
+                            this.online_status = true;
+                        }else {
+                            this.online_status = false;
+                        }
+                    }).catch(error => {
+                        console.log(error);
+                    })
+                },
+                openWindow1(){
+                    if (userInfo != null){
+                        let item = {id:this.basicUserInfo.id,username:this.basicUserInfo.another_name,img:this.basicUserInfo.picture};
+                        console.log(this.basicUserInfo);
+                        layui.openMessage(item);
+                    }else {
+                        layui.login();
+                    }
+                }
+            },
+            filters:{
+                //格式化时间
+                formatDate(time){
+                    return layui.dateChangeFormat(time);
+                },
+                formatDate(timestamp){
+                    //timestamp是整数，否则要parseInt转换,不会出现少个0的情况
+                    var time = new Date(timestamp);
+                    var year = time.getFullYear();
+                    var month = time.getMonth()+1;
+                    var date = time.getDate();
+                    var hours = time.getHours();
+                    var minutes = time.getMinutes();
+                    var seconds = time.getSeconds();
+                    return year+'-'+month+'-'+date+' '+hours+':'+minutes;
+                },
+            },
+            computed:{
+                //email校验
+                emailCheck:function() {
+                    if(this.basicUserInfo.email!=""){
+                        return "已验证"
+                    }
+                    if(this.basicUserInfo.email==''){
+                        return "未验证"
+                    }
+                },
+                //检查是否为自己的个人资料
+                checkLeave:function () {
+                    if (this.userInfo.id==getUrlParam('id')){
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }
+            },
+            mounted:function(){
+                this.getUserInfoById();
+                this.checkIsFriend();
+                this.selectCare();
+            },
+            updated(){
+                var len = this.leaveMessageList.length;
+                height = (len * 73) + 380 + "px";
+                console.log(height);
+                $(".layui-tab-content").css("height",height);
+            }
+        });
+    },200);
+   setTimeout(function () {
+       //layui事件转换器
+       layui.define(['layer','layedit','util'],function (exports) {
+           var layer = layui.layer,
+               layedit = layui.layedit,
+               util = layui.util;
+           exports("dateChangeFormat",function (time) {
+               return util.timeAgo(time, false);
+           });
+
+
+       });
+       //编辑器的创建一定要在vue实例注册后
+       createEdit("editor");
+       layui.define(['element','layer','layedit'],function (exports) {
+           var element = layui.element;
+               layer = layui.layer,
+               layedit = layui.layedit;
+
+           //暴露打开会话窗口的接口
+           exports('openMessage',function(item) {
+               layer.open({
+                   type: 1,
+                   //id: 'openMessage', //id唯一标识
+                   title:'<div class="layui-row" >' +
+                       '<div class="layui-col-sm2" style="margin-top: 8px;"><img src="/leek_bbs/'+item.img+'" class="img-circle img-size" alt=""></div>' +
+                       '<div class="layui-col-sm2 m-class" style="height: 70px;margin-left: -10px;"><h4 style="line-height:25px;margin-top: 12px;color:#333;">'+item.username+'</h4>' +
+                       '</div>' +
+                       '</div>',
+                   content: `<div id="layer-3" class="layui-container-fluid" >
+                    <iframe src="/leek_bbs/skipPage/session" frameborder="0" id="chatSession-W" name="chatSession-W" style="width: 100%; height: 254px;"></iframe>
+                    <div class="layui-row" id="layedit">
+                        <textarea id="chatEdit" style="display: none;"></textarea>
+                    </div>
+                    <div class="layui-row">
+                        <div class="layui-col-sm4 layui-col-sm-offset8">
+                            <div class="m-btn">
+                                <button id="closeBtn" class="layui-btn layui-btn-sm">关闭</button>
+                                <button id="sendBtn" class="layui-btn layui-btn-sm">发送</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`,
+                   /*skin: 'm-bg-color',*/
+                   anim: 2,    //动画
+                   shade: 0,
+                   /*fixed: false,*/
+                   maxmin: true,   //最大化
+                   resize: false,  //关闭拉伸
+                   // scrollbar: false,   //不允许出现滚动条
+                   area: ['600px', '522px'],
+                   moveEnd: function(layero){
+                       /*console.log(layero);*/
+
+                   },
+                   success: function(layero, index) {
+                       $("#layui-layer"+index).find(".layui-layer-title").addClass("m-layer-title");
+                       let str;
+                       //获取用户在线状态
+                       personalApp.queryUserStatus(item.id);
+                       setTimeout(() => {
+                           console.log(personalApp.online_status);
+                           if (personalApp.online_status == true){
+                               str = `<h5 style="color:red;">在线</h5>`;
+                           } else {
+                               str = `<h5 style="color:black;">【离线】</h5>`;
+                           }
+                           $("#layui-layer"+index).find(".m-class").append(str);
+                       },60);
+                       //显示编辑器
+                       $("#layer-3").css("display","block");
+                       //建立编辑器
+                       editIndex = layedit.build('chatEdit',{
+                           width:560,  //设置宽度
+                           height: 82, //设置编辑器高度
+                           tool: [
+                               'face' //表情
+                               //,'image' //插入图片
+                           ]
+                       });
+                       //获取聊天对象信息
+                       tarUser = item;
+                       id = item.id;
+                   },
+                   full: function(layero){ //最大化
+                       //调整按钮位置
+                       $("#layer-3 .layui-row .m-btn").css({"margin-left":"205px","margin-top":"155px"});
+                       //调整用户名称及状态位置
+                       layero.find(".layui-layer-title .m-class").css("margin-left","-90px");
+                   },
+                   min: function(layero){
+                       layero.find(".layui-layer-title .m-class").css("display","none");
+                   },
+                   restore: function(layero){    //还原
+                       //还原按钮初始位置
+                       $("#layer-3 .layui-row .m-btn").css({"margin-left":"30px","margin-top":"5px"});
+                       //还原用户名称及状态位置
+                       layero.find(".layui-layer-title .m-class").css("margin-left","-10px");
+                       layero.find(".layui-layer-title .m-class").css("display","block");
+                   },
+                   end: function () {
+                       //在未还原时,直接关闭弹窗,则还原按钮初始位置
+                       $("#layer-3 .layui-row .m-btn").css("margin-left","30px");
+                       //隐藏编辑器
+                       $("#layer-3").css("display","none");
+                   }
+
+               });
+           });
+
+           //发送消息
+           $(document).on('click','#sendBtn',function () {
+               if (personalApp.online_status) {     //用户在线
+                   //获取发送内容
+                   let str = layedit.getContent(editIndex);
+                   if (str != null && str != ''){
+                       let date = new Date();
+                       //console.log(userInfo);
+                       ws.send(JSON.stringify({
+                           "type": "1",
+                           "tarUser": {"userId":tarUser.id},
+                           "srcUser": {"userId":userInfo.id},
+                           "img":userInfo.picture,
+                           "time":date.getTime(),
+                           "content": str
+                       }));
+                       //该方法layedit接口中未定义,修改layedit.js文件自己添加的方法
+                       layedit.clearContent(editIndex);
+                   }
+               }else {      //不在线
+                   layer.msg('该用户不在线,请上线后再私聊!',{icon:5,time:1500})
+               }
+
+           });
+           //关闭聊天窗口
+           $(document).on('click','#closeBtn',function () {
+               layer.closeAll();
+           });
+
+           exports('closeWindow',function () {
+               layer.closeAll();
+           })
+       });
+
+   },300);
+
+    function  getUserId() {
+        return userInfo.id;
+    }
+    function closeWindow() {
+        layer.closeAll();
+    }
+
+    let id = null;
+    function getId() {
+
+        return id;
+    }
+
+</script>
+</body>
+</html>

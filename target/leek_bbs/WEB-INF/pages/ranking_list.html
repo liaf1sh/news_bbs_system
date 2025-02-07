@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://java.sun.com/jsf/composite">
+<head>
+    <meta charset="UTF-8">
+    <title>排行榜</title>
+    <link rel="icon" href="/leek_bbs/statics/images/favicon.ico" >
+    <link rel="stylesheet" href="/leek_bbs/statics/yu-ui/js_css/yu.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/layui/css/layui.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/bootstrap-3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/css/head.css">
+    <style>
+        .numberOn{
+            color: #fff;
+            background:#ff6f3d ;
+            border-radius: 3px;
+        }
+        .number{
+            color:#8F8F8F;
+        }
+        .container .row .col-sm-2 .row{
+            padding-left: 20px;
+        }
+        .m-hover-bg:hover{
+            border-left: 2px solid #ff6f3d;
+            background-color: #f3f3f3;
+        }
+        .m-hover-bg:hover a{
+            color: #ff6f3d;
+        }
+        h5 > a{
+            color: #333;
+        }
+        h5 > a:hover{
+            color: #ff6f3d;
+        }
+        .m-active{
+            border-left: 2px solid #ff6f3d;
+            background-color: #f3f3f3;
+        }
+        .layui-tab-title li:hover{
+            color: #ff6f3d;
+            background-color: #e5e5e5;
+            opacity: .9;
+        }
+        .layui-this{
+            font-weight: bold;
+        }
+        .m-border-bottom{
+            padding-top: 10px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .m-border-bottom:hover{
+            cursor:pointer;
+            color: #ff6f3d;
+            background-color: #f5f5f5;
+        }
+        .layui-tab-content img{
+            width: 14px;
+            height: 13px;
+        }
+        .m-left{
+            margin-left: 4px;
+        }
+        .m-right{
+            float: right;
+            margin-right: 38px;
+        }
+        footer{
+            top: 580px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body style="position: relative;height: 100%;overflow: scroll">
+
+<div class="container-fluid">
+    <!-- 导航开始 -->
+    <div id="hmc">
+        <head_menu_comp :is_login="isLoginShow" ref="fo"></head_menu_comp>
+    </div>
+    <!-- 导航结束 -->
+    <!-- 中间主体部分 -->
+    <div class="container" id="rankApp" v-cloak="">
+        <div class="row">
+            <span style="opacity: .8;">
+                <a href="index.html"><span class="glyphicon glyphicon-home"></span></a>&nbsp;>&nbsp;
+                <a href="index.html">排行</a>&nbsp;>&nbsp;
+                <span>用户排行</span>
+            </span>
+           <!-- <span style="float: right;"><a href="javascript:;">我的收藏</a></span>-->
+        </div>
+        <div class="row" style="margin-top: 20px;">
+            <div class="col-sm-2" style="padding-bottom:20px;border: 1px solid #e5e5e5;background-color: #fff;">
+                <div class="row" style="border-bottom: 1px solid #e5e5e5;"><h4>排行榜</h4></div>
+                <div class="row m-hover-bg m-active" id="userBtn"><h5><a href="javascript:;">用户</a></h5></div>
+                <div class="row m-hover-bg" id="postsBtn"><h5><a href="javascript:;">帖子</a></h5></div>
+                <div class="row m-hover-bg" id="plateBtn"><h5><a href="javascript:;">板块</a></h5></div>
+            </div>
+            <div class="col-sm-9" style="margin-left:30px;border: 1px solid #e5e5e5;background-color: #fff;">
+                <div class="layui-tab" id="tab-user" lay-filter="tabUser"style="max-width: 840px">
+                    <ul class="layui-tab-title">
+                        <li class="layui-this">积分排行</li>
+                        <li v-on:click="getuPost">发帖数排行</li>
+                        <li v-on:click="getLogs">日志排行</li>
+                        <li v-on:click="getExperience">经验排行</li>
+                    </ul>
+                    <div class="layui-tab-content">
+                        <div class="layui-tab-item layui-show">
+                            <div class="layui-row m-border-bottom" v-for="(integral,index) in integrals" style="padding-top: 15px;padding-bottom: 1px;border-bottom: 1px solid #e5e5e5; ">
+                                <div class="col-sm-8">
+                                    <span :class="(index <= 2) ? 'numberOn':'number'" style="padding-left:4px;padding-right: 4px">{{index+1>9?index+1:(index+1)}}</span>
+                                    <a :href="'/leek_bbs/skipPage/personal?id='+integral.id" :title="'进入'+integral.another_name+'空间'"><img :src="'/leek_bbs/'+integral.picture" class="img-circle" style="width: 48px;height: 48px;margin-left: 5px;"></a>
+                                    <p style="font-weight: bold;padding-left:80px;margin-top: -50px">{{integral.another_name}}</p>
+                                    <p style="padding-left: 80px;font-size: 13px;color: #7f8da3;margin-top: -10px">积分数:<em>{{integral.integral.total_integral}}</em></p>
+                                </div>
+                                <div class="col-sm-4">
+                                    <ul style="font-size: 12px;float: right">
+                                        <li><a :href="'/leek_bbs/skipPage/personal?='+integral.id ">去串个门</a></li>
+                                        <!--<li><a href="javascript;">打个招呼</a></li>-->
+                                        <!--<li><a href="javascript;">发送消息</a></li>-->
+                                        <!--<li><a href="javascript;">加为好友</a></li>-->
+                                    </ul>
+                                </div>
+                            </div>
+                            <p style="margin-top:5px;font-size: 12px;font-family: Arial;color: #7f8da3">排行榜显示前10位数据</p>
+                        </div>
+                        <div class="layui-tab-item">
+                            <div class="layui-row m-border-bottom" v-for="(essay,index) in essays"style="padding-top:15px;padding-bottom: 5px;border-bottom: 1px solid #e5e5e5; ">
+                                <div class="col-sm-8">
+                                    <span :class="(index <= 2) ? 'numberOn':'number'" style="padding-left:4px;padding-right: 4px"><em>{{index+1>9?index+1:(index+1)}}</em></span>
+                                    <a :href="'/leek_bbs/skipPage/personal?id='+essay.id" :title="'进入'+essay.another_name+'空间'"><img :src="'/leek_bbs/'+essay.picture" class="img-circle" style="width: 48px;height: 48px;margin-left: 5px;"></a>
+                                    <p style="font-weight: bold;padding-left:80px;margin-top: -50px">{{essay.another_name}}</p>
+                                    <p style="padding-left: 80px;font-size: 13px;color: #7f8da3;margin-top: -10px">发帖数:<em>{{essay.posts}}</em></p>
+                                </div>
+                                <div class="col-sm-4">
+                                    <ul style="font-size: 12px;float: right">
+                                        <li><a :href="'/leek_bbs/skipPage/personal?id='+essay.id">去串个门</a></li>
+                                        <!--<li><a href="javascript;">打个招呼</a></li>-->
+                                        <!--<li><a href="javascript;">发送消息</a></li>-->
+                                        <!--<li><a href="javascript;">加为好友</a></li>-->
+                                    </ul>
+                                </div>
+                            </div>
+                            <p style="margin-top:5px;font-size: 12px;font-family: Arial;color: #7f8da3">排行榜显示前10位数据</p>
+                        </div>
+                        <div class="layui-tab-item">
+                            <div class="layui-row m-border-bottom" v-for="(log,index) in logs" style="padding-top:15px;padding-bottom: 5px;border-bottom: 1px solid #e5e5e5; ">
+                                <div class="col-sm-8">
+                                    <span :class="(index <= 2) ? 'numberOn':'number'" style="padding-left:4px;padding-right: 4px">{{index+1>9?index+1:(index+1)}}</span>
+                                    <a :href="'/leek_bbs/skipPage/personal?id='+log.id" :title="'进入'+log.another_name+'空间'"><img :src="'/leek_bbs/'+log.picture" class="img-circle" style="width: 48px;height: 48px;margin-left: 5px;"></a>
+                                    <p style="font-weight: bold;padding-left:80px;margin-top: -50px">{{log.another_name}}</p>
+                                    <p style="padding-left: 80px;font-size: 13px;color: #7f8da3;margin-top: -10px">日志数:<em>{{log.log}}</em></p>
+                                </div>
+                                <div class="col-sm-4">
+                                    <ul style="font-size: 12px;float: right">
+                                        <li><a :href="'/leek_bbs/skipPage/personal?id='+log.id">去串个门</a></li>
+                                        <!--<li><a href="javascript;">打个招呼</a></li>-->
+                                        <!--<li><a href="javascript;">发送消息</a></li>-->
+                                        <!--<li><a href="javascript;">加为好友</a></li>-->
+                                    </ul>
+                                </div>
+                            </div>
+                            <p style="margin-top:5px;font-size: 12px;font-family: Arial;color: #7f8da3">排行榜显示前10位数据</p>
+                        </div>
+                        <div class="layui-tab-item">
+                            <div class="layui-row m-border-bottom" v-for="(experience,index) in experiences" style="padding-top:15px;padding-bottom: 5px;border-bottom: 1px solid #e5e5e5; ">
+                                <div class="col-sm-8">
+                                    <span :class="(index <= 2) ? 'numberOn':'number'" style="padding-left:4px;padding-right: 4px">{{index+1>9?index+1:(index+1)}}</span>
+                                    <a :href="'/leek_bbs/skipPage/personal?id='+experience.id" :title="'进入'+experience.another_name+'空间'"><img :src="'/leek_bbs/'+experience.picture" class="img-circle" style="width: 48px;height: 48px;margin-left: 5px;"></a>
+                                    <p style="font-weight: bold;padding-left:80px;margin-top: -50px">{{experience.another_name}}</p>
+                                    <p style="padding-left: 80px;font-size: 13px;color: #7f8da3;margin-top: -10px">经验数:<em>{{experience.total_experience}}</em></p>
+                                </div>
+                                <div class="col-sm-4">
+                                    <ul style="font-size: 12px;float: right">
+                                        <li><a :href="'/leek_bbs/skipPage/personal?id='+experience.id">去串个门</a></li>
+                                        <!--<li><a href="javascript;">打个招呼</a></li>-->
+                                        <!--<li><a href="javascript;">发送消息</a></li>-->
+                                        <!--<li><a href="javascript;">加为好友</a></li>-->
+                                    </ul>
+                                </div>
+                            </div>
+                            <p style="margin-top:5px;font-size: 12px;font-family: Arial;color: #7f8da3">排行榜显示前10位数据</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-tab" id="tab-posts" lay-filter="tabPosts" style="display: none;max-width:840px;">
+                    <ul class="layui-tab-title">
+                        <li class="layui-this">回复排行</li>
+                        <li v-on:click="getBrowse">查看排行</li>
+                        <li v-on:click="getShare">分享排行</li>
+                        <li v-on:click="getCollect">收藏排行</li>
+                        <li v-on:click="getHeat">热度排行</li>
+                    </ul>
+                    <div class="layui-tab-content">
+                        <div class="layui-tab-item layui-show">
+                            <div style="height: 26px">
+                                <div class="row ">
+                                    <div class="col-sm-6">
+                                        <span style="padding-left: 40px">主题</span>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span>板块</span>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span>作者</span>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span>回复</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row m-border-bottom" style="padding-top: 6px;padding-bottom: 2px;border-bottom: 1px solid #e5e5e5;" v-for="(reply,index) in replys" >
+
+                                <div class="col-sm-6">
+                                    <span :class="(index <= 2) ? 'numberOn':'number'"  style="padding-left:4px;padding-right: 4px"><em>{{index+1>9?index+1:(index+1)}}</em></span>
+                                    <a :href="'/leek_bbs/skipPage/blogPage?theme_id='+reply.id" style="padding-left: 7px">{{reply.title}}</a>
+
+                                </div>
+                                <div class="col-sm-2">
+                                    <a href="javascript;" style="color: #999;font-size: 13px">{{reply.plate_name}}</a>
+                                </div>
+                                <div class="col-sm-2">
+                                    <ul>
+                                        <li><a href="javascript;" style="font-size: 10px;color: #0C0C0C">{{reply.post_author}}</a></li>
+                                        <li  style="font-size: 7px;color:#999">{{reply.publish_time|format}}</li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-2">
+                                    <a href="javascript" style="font-size: 14px">{{reply.reply_count}}</a>
+                                </div>
+                            </div>
+                            <p style="margin-top:5px;font-size: 12px;font-family: Arial;color: #7f8da3">排行榜显示前10位数据</p>
+                        </div>
+                        <div class="layui-tab-item">
+                            <div style="height: 26px">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <span style="padding-left: 40px">主题</span>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span>板块</span>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span>作者</span>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span>查看</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row m-border-bottom" style="padding-top: 6px;padding-bottom: 2px;border-bottom: 1px solid #e5e5e5;" v-for="(browse,index) in browses" >
+
+                                <div class="col-sm-6">
+                                    <span :class="(index <= 2) ? 'numberOn':'number'"  style="padding-left:4px;padding-right: 4px">{{index+1>9?index+1:(index+1)}}</span>
+                                    <a :href="'/leek_bbs/skipPage/blogPage?theme_id='+browse.id" style="padding-left: 7px">{{browse.title}}</a>
+
+                                </div>
+                                <div class="col-sm-2">
+                                    <a href="javascript;" style="color: #999;font-size: 13px">{{browse.plate_name}}</a>
+                                </div>
+                                <div class="col-sm-2">
+                                    <ul>
+                                        <li><a href="javascript;" style="font-size: 10px;color: #0C0C0C">{{browse.post_author}}</a></li>
+                                        <li  style="font-size: 7px;color:#999">{{browse.publish_time|format}}</li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-2">
+                                    <a href="javascript" style="font-size: 14px">{{browse.browse_count}}</a>
+                                </div>
+                            </div>
+                            <p style="margin-top:5px;font-size: 12px;font-family: Arial;color: #7f8da3">排行榜显示前10位数据</p>
+                        </div>
+                        <div class="layui-tab-item">
+                            <div style="height: 26px">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <span style="padding-left: 40px">主题</span>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span>板块</span>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span>作者</span>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span>分享</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row m-border-bottom" style="padding-top: 6px;padding-bottom: 2px;border-bottom: 1px solid #e5e5e5;" v-for="(share,index) in shares" >
+
+                                <div class="col-sm-6">
+                                    <span :class="(index <= 2) ? 'numberOn':'number'" style="padding-left:4px;padding-right: 4px">{{index+1>9?index+1:(index+1)}}</span>
+                                    <a :href="'/leek_bbs/skipPage/blogPage?theme_id='+share.id" style="padding-left: 7px">{{share.title}}</a>
+
+                                </div>
+                                <div class="col-sm-2">
+                                    <a href="javascript;" style="color: #999;font-size: 13px">{{share.plate_name}}</a>
+                                </div>
+                                <div class="col-sm-2">
+                                    <ul>
+                                        <li><a href="javascript;" style="font-size: 10px;color: #0C0C0C">{{share.post_author}}</a></li>
+                                        <li  style="font-size: 7px;color:#999">{{share.publish_time|format}}</li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-2">
+                                    <a href="javascript" style="font-size: 14px">{{share.share_count}}</a>
+                                </div>
+                            </div>
+                            <p style="margin-top:5px;font-size: 12px;font-family: Arial;color: #7f8da3">排行榜显示前10位数据</p>
+                        </div>
+                        <div class="layui-tab-item">
+                            <div style="height: 26px">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <span style="padding-left: 40px">主题</span>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span>板块</span>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span>作者</span>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span>收藏</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row m-border-bottom" style="padding-top: 6px;padding-bottom: 2px;border-bottom: 1px solid #e5e5e5;" v-for="(collect,index) in collects" >
+
+                                <div class="col-sm-6">
+                                    <span :class="(index <= 2) ? 'numberOn':'number'"  style="padding-left:4px;padding-right: 4px">{{index+1>9?index+1:(index+1)}}</span>
+                                    <a :href="'/leek_bbs/skipPage/blogPage?theme_id='+collect.id" style="padding-left: 7px">{{collect.title}}</a>
+
+                                </div>
+                                <div class="col-sm-2">
+                                    <a href="javascript;" style="color: #999;font-size: 13px">{{collect.plate_name}}</a>
+                                </div>
+                                <div class="col-sm-2">
+                                    <ul>
+                                        <li><a href="javascript;" style="font-size: 10px;color: #0C0C0C">{{collect.post_author}}</a></li>
+                                        <li  style="font-size: 7px;color:#999">{{collect.publish_time|format}}</li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-2">
+                                    <a href="javascript" style="font-size: 14px">{{collect.post_collect}}</a>
+                                </div>
+                            </div>
+                            <p style="margin-top:5px;font-size: 12px;font-family: Arial;color: #7f8da3">排行榜显示前10位数据</p>
+                        </div>
+                        <div class="layui-tab-item">
+                            <div style="height: 26px">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <span style="padding-left: 40px">主题</span>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span>板块</span>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span>作者</span>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <span>热度</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row m-border-bottom" style="padding-top: 6px;padding-bottom: 2px;border-bottom: 1px solid #e5e5e5;" v-for="(heat,index) in heats" >
+
+                                <div class="col-sm-6">
+                                    <span :class="(index <= 2) ? 'numberOn':'number'"  style="padding-left:4px;padding-right: 4px">{{index+1>9?index+1:(index+1)}}</span>
+                                    <a :href="'/leek_bbs/skipPage/blogPage?theme_id='+heat.id" style="padding-left: 7px">{{heat.title}}</a>
+
+                                </div>
+                                <div class="col-sm-2">
+                                    <a href="javascript;" style="color: #999;font-size: 13px">{{heat.plate_name}}</a>
+                                </div>
+                                <div class="col-sm-2">
+                                    <ul>
+                                        <li><a href="javascript;" style="font-size: 10px;color: #0C0C0C">{{heat.post_author}}</a></li>
+                                        <li  style="font-size: 7px;color:#999">{{heat.publish_time|format}}</li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-2">
+                                    <a href="javascript" style="font-size: 14px">{{heat.post_heat}}</a>
+                                </div>
+                            </div>
+                            <p style="margin-top:5px;font-size: 12px;font-family: Arial;color: #7f8da3">排行榜显示前10位数据</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-tab" id="tab-plate" lay-filter="tabPlate" style="display: none;max-width: 840px">
+                    <ul class="layui-tab-title">
+                        <li class="layui-this">发帖排行</li>
+                        <li v-on:click="getPosts">回复排行</li>
+                        <li v-on:click="getTime">今日发帖排行</li>
+                    </ul>
+                    <div class="layui-tab-content">
+                        <div class="layui-tab-item layui-show">
+                            <div class="row " style="padding-bottom: 12px;border-bottom: 1px solid #e5e5e5; ">
+                                <span style="margin-left: 34px;">板块</span><span style="float: right;margin-right: 38px;">发帖</span>
+                            </div>
+                            <div class="row m-border-bottom" v-for="(theme,index) in themes">
+                                <span class="m-left">  <span :class="(index <= 2) ? 'numberOn':'number'"  style="padding-left:4px;padding-right: 4px">{{index+1>9?index+1:(index+1)}}</span>&emsp;<a :href="'/leek_bbs/skipPage/model?pl_type='+theme.id">{{theme.plate_name}}</a></span>
+                                <span class="m-right">{{theme.theme}}</span>
+                            </div>
+                            <p style="margin-top:5px;font-size: 12px;font-family: Arial;color: #7f8da3">排行榜显示前10位数据</p>
+                        </div>
+                        <div class="layui-tab-item">
+                            <div class="row " style="padding-bottom: 12px;border-bottom: 1px solid #e5e5e5; ">
+                                <span style="margin-left: 34px;">板块</span><span style="float: right;margin-right: 38px;">发帖</span>
+                            </div>
+                            <div class="row m-border-bottom" v-for="(posts,index) in postes">
+                                <span class="m-left">  <span :class="(index <= 2) ? 'numberOn':'number'"  style="padding-left:4px;padding-right: 4px">{{index+1>9?index+1:(index+1)}}</span>&emsp;<a :href="'/leek_bbs/skipPage/model?pl_type='+posts.id">{{posts.plate_name}}</a></span>
+                                <span class="m-right">{{posts.posts}}</span>
+                            </div>
+                            <p style="margin-top:5px;font-size: 12px;font-family: Arial;color: #7f8da3">排行榜显示前10位数据</p>
+                        </div>
+                        <div class="layui-tab-item">
+                            <div class="row " style="padding-bottom: 12px;border-bottom: 1px solid #e5e5e5; ">
+                                <span style="margin-left: 34px;">板块</span><span style="float: right;margin-right: 38px;">发帖</span>
+                            </div>
+                            <div class="row m-border-bottom" v-for="(time,index) in times">
+                                <span class="m-left">  <span :class="(index <= 2) ? 'numberOn':'number'"  style="padding-left:4px;padding-right: 4px">{{index+1>9?index+1:(index+1)}}</span>&emsp;<a :href="'/leek_bbs/skipPage/model?pl_type='+time.id">{{time.plate_name}}</a></span>
+                                <span class="m-right">{{time.todayTotalTheme}}</span>
+                            </div>
+                            <p style="margin-top:5px;font-size: 12px;font-family: Arial;color: #7f8da3">排行榜显示前10位数据</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚部分 -->
+    <footer>
+        <div class="row">
+            <p>
+
+<!--                <span>版权所有&nbsp;All Rights Reserved.</span>-->
+            </p>
+        </div>
+    </footer>
+</div>
+<script src="/leek_bbs/statics/component/common_import.js"></script>
+<script src="/leek_bbs/statics/component/head_menu.js"></script>
+<script src="/leek_bbs/statics/js/my_project_rs.js"></script>
+
+<script>
+
+    new Vue({
+        el:'#rankApp',
+        data:{
+            integrals:[],
+            essays:[],
+            logs:[],
+            browses:[],
+            experiences:[],
+            replys:[],
+            shares:[],
+            collects:[],
+            heats:[],
+            themes:[],
+            postes:[],
+            times:[],
+            pageSize:10,
+            pageNo:1,
+        },
+        methods: {
+            integral() {
+                axios.post("/leek_bbs/bbs/rank/query",{
+                    pageSize: this.pageSize,
+                    pageNo: this.pageNo,
+                })
+                .then(response => {
+                    var data = response.data;
+                    this.integrals = data;
+                });
+            },
+            getuPost(){
+                axios.post("/leek_bbs/bbs/rank/selectPost",{
+                    pageSize: this.pageSize,
+                    pageNo: this.pageNo,
+                })
+                    .then(response => {
+                        var data = response.data;
+                        this.essays = data;
+                    });
+            },
+            getLogs(){
+                axios.post("/leek_bbs/bbs/rank/selectLog",{
+                    pageSize: this.pageSize,
+                    pageNo: this.pageNo,
+                })
+                    .then(response => {
+                        var data = response.data;
+                        this.logs = data;
+                    });
+            },
+            getExperience(){
+                axios.post("/leek_bbs/bbs/rank/selectExperience",{
+                    pageSize: this.pageSize,
+                    pageNo: this.pageNo,
+                })
+                    .then(response => {
+                        var data = response.data;
+                        this.experiences = data;
+                    });
+            },
+            reply(){
+                axios.post("/leek_bbs/bbs/rank/selectReply",{
+                    pageSize: this.pageSize,
+                    pageNo: this.pageNo,
+                })
+                    .then(response => {
+                        var data = response.data;
+                        this.replys = data;
+                        console.log(data);
+                    });
+            },
+            getBrowse(){
+                axios.post("/leek_bbs/bbs/rank/selectBrowse",{
+                    pageSize: this.pageSize,
+                    pageNo: this.pageNo,
+                })
+                    .then(response => {
+                        var data = response.data;
+                        this.browses = data;
+                    });
+            },
+            getShare(){
+                axios.post("/leek_bbs/bbs/rank/selectShare",{
+                    pageSize: this.pageSize,
+                    pageNo: this.pageNo,
+                })
+                    .then(response => {
+                        var data = response.data;
+                        this.shares = data;
+                    });
+            },
+            getCollect(){
+                axios.post("/leek_bbs/bbs/rank/selectCollect",{
+                    pageSize: this.pageSize,
+                    pageNo: this.pageNo,
+                })
+                    .then(response => {
+                        var data = response.data;
+                        this.collects = data;
+                    });
+            },
+            getHeat(){
+                axios.post("/leek_bbs/bbs/rank/selectHeat",{
+                    pageSize: this.pageSize,
+                    pageNo: this.pageNo,
+                })
+                    .then(response => {
+                        var data = response.data;
+                        this.heats = data;
+                    });
+            },
+            theme(){
+                axios.post("/leek_bbs/bbs/rank/selectTheme",{
+                    pageSize: this.pageSize,
+                    pageNo: this.pageNo,
+                })
+                    .then(response => {
+                        var data = response.data;
+                        this.themes = data;
+                    });
+            },
+           getPosts(){
+                axios.post("/leek_bbs/bbs/rank/selectPosts",{
+                    pageSize: this.pageSize,
+                    pageNo: this.pageNo,
+                })
+                    .then(response => {
+                        var data = response.data;
+                        this.postes = data;
+
+                    });
+            },
+            getTime(){
+                axios.get("/leek_bbs/bbs/rank/selectTime").then(response => {
+                        let data = response.data;
+                        this.times = data.sort(compare('todayTotalTheme'));
+                    }).catch(error => {
+                        console.log(error);
+                    });
+            }
+        },
+        created(){
+            this.integral();
+            this.reply();
+            this.theme()
+
+        },
+        filters: {
+            format(value) {
+                let date = new Date(value);
+                return `${date.getFullYear()}-${date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+            }
+        }
+    });
+
+    function compare(property){
+        return function(a,b){
+            let value1 = a[property];
+            let value2 = b[property];
+            return value2 - value1;
+        }
+    }
+</script>
+</body>
+</html>

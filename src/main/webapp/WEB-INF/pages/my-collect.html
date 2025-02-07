@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>全部收藏&nbsp;leek_bbs论坛</title>
+    <link rel="icon" href="/leek_bbs/statics/images/favicon.ico" >
+    <link rel="stylesheet" href="/leek_bbs/statics/yu-ui/js_css/yu.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/layui/css/layui.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/bootstrap-3.3.7/css/bootstrap.min.css">
+    <!-- vue-element插件样式 -->
+    <link rel="stylesheet" href="/leek_bbs/statics/vue/element-ui/index.css">
+    <link rel="stylesheet" href="/leek_bbs/statics/css/head.css">
+    <style>
+        .container .row .col-sm-2 .row{
+            padding-left: 20px;
+        }
+        .m-hover-bg:hover{
+            border-left: 2px solid #ff6f3d;
+            background-color: #f3f3f3;
+        }
+        .m-hover-bg:hover a{
+            color: #ff6f3d;
+        }
+        h5 > a{
+            color: #333;
+        }
+        h5 > a:hover{
+            color: #ff6f3d;
+        }
+        .m-active{
+            border-left: 2px solid #ff6f3d;
+            background-color: #f3f3f3;
+        }
+        .layui-tab-title li:hover{
+            color: #ff6f3d;
+            background-color: #e5e5e5;
+            opacity: .9;
+        }
+        .layui-this{
+            font-weight: bold;
+        }
+        .m-border-bottom{
+            padding-top: 10px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .m-border-bottom:hover{
+            cursor:pointer;
+            color: #ff6f3d;
+            background-color: #f5f5f5;
+        }
+        .layui-tab-content img{
+            width: 14px;
+            height: 13px;
+        }
+        .m-left{
+            margin-left: 4px;
+        }
+        .m-right{
+            float: right;
+            margin-right: 38px;
+        }
+        .col-sm-8 .layui-tab > div > ul li{
+            padding: 10px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .layui-tab > div > ul li a,.layui-row a{
+            color: #444;
+        }
+        .layui-tab > div > ul li span{
+            opacity: .7;
+            font-size: 12px;
+        }
+        .layui-tab > div > ul li a:hover,.layui-row a:hover{
+            color: #ff6f3d;
+        }
+        .layui-tab > div > ul li img{
+            vertical-align: sub;
+            margin-right: 3px;
+        }
+        .layui-tab ul li input,.layui-row input{
+            margin-bottom: 6px;
+            margin-right: 5px;
+        }
+        .layui-row .layui-btn-sm{
+            margin-left: 14px;
+            margin-top: -5px;
+            height: 27px;
+            line-height: 22px;
+            font-size: 10px;
+            opacity:.8;
+        }
+        .layui-tab .layui-row{
+            padding: 8px 0;
+        }
+        .layui-row a{
+            margin-left:10px;
+        }
+        /*分页部分*/
+        .el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev{
+            width: 85px;
+        }
+        .el-pagination.is-background .btn-next, .el-pagination.is-background .btn-prev, .el-pagination.is-background .el-pager li {
+            background-color: #fff;
+        }
+        .el-pagination.is-background .el-pager li:not(.disabled).active {
+            background-color: orange;
+        }
+        footer{
+            margin-top: 224px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <!-- 导航开始 -->
+    <div id="hmc">
+        <head_menu_comp :is_login="isLoginShow" ref="fo"></head_menu_comp>
+    </div>
+    <!-- 导航结束 -->
+    <!-- 中间主体部分 -->
+    <div class="container" id="collectApp" style="display: none;height: 334px;">
+        <div class="row">
+            <span style="opacity: .8;">
+                <a href="/leek_bbs/skipPage/index"><span class="glyphicon glyphicon-home"></span></a>&nbsp;>&nbsp;
+                <span>我的收藏</span>
+            </span>
+           <!-- <span style="float: right;"><a href="javascript:;">我的收藏</a></span>-->
+        </div>
+        <div class="row" style="margin-top: 20px;">
+            <div class="col-sm-2" style="padding-bottom:20px;border: 1px solid #e5e5e5;background-color: #fff;">
+                <div class="row" style="border-bottom: 1px solid #e5e5e5;"><h4>收藏</h4></div>
+<!--                <div class="row m-hover-bg m-active" id="userBtn"><h5><a href="javascript:;">全部收藏</a></h5></div>-->
+                <div class="row m-hover-bg" id="postsBtn"><h5><a href="javascript:;">新闻</a></h5></div>
+                <div class="row m-hover-bg" id="plateBtn"><h5><a href="javascript:;">分类</a></h5></div>
+<!--                <div class="row m-hover-bg" id="logBtn"><h5><a href="javascript:;">日志</a></h5></div>-->
+            </div>
+            <div class="col-sm-8" style="margin-left:30px;border: 1px solid #e5e5e5;background-color: #fff;" v-cloak="">
+                <div class="layui-tab" id="tab-user" lay-filter="tabUser" v-if="isShowAll" >
+                    <div v-if="collectList.length > 0">
+                        <ul>
+                            <li v-for="item in collectList" :key="item.id">
+                                <input type="checkbox" :checked="collectIds.indexOf(item.id)!=-1" @click="isCheck(item.id)">
+                                <img src="/leek_bbs/statics/images/thread.gif">
+                                <a v-if="item.type==1" :href="'/leek_bbs/skipPage/blogPage?theme_id='+item.all_id" target="_blank">{{item.title}}</a>
+                                <a v-else-if="item.type==2" :href="'/leek_bbs/skipPage/model?pl_type='+item.all_id" target="_blank">{{item.title}}</a>
+                                <a v-else href="javascript:;" target="_blank">{{item.title}}</a>
+                                &emsp;<span>{{item.collect_time|dateFormat}}</span>
+                                <div style="float: right;margin-right: 5px;"><a href="javascript:;" @click="deleteCollects(item.id)">删除</a></div>
+                            </li>
+                        </ul>
+                        <div class="layui-row" style="float:right;margin: 8px 0 2px;">
+                            <div>
+                                <el-pagination
+                                        background
+                                        @current-change="getCollect"
+                                        :current-page.sync="pageNo"
+                                        :page-size="pageSize"
+                                        layout="prev, pager, next, jumper"
+                                        prev-text="上一页"
+                                        next-text="下一页"
+                                        :total="total">
+                                </el-pagination>
+                            </div>
+                        </div>
+                        <div class="layui-row">
+                            <a href="javascript:;" @click="checkAll">全选</a> <button class="layui-btn layui-btn-sm layui-btn-danger" @click="deleteCollects()">删除选中收藏</button>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <div class="layui-row"><h3 align="center" style="opacity: .7;">暂无收藏数据</h3></div>
+                    </div>
+                </div>
+                <div class="layui-tab" id="tab-posts" lay-filter="tabPosts" v-if="isShowPost">
+                    <div v-if="postList.length > 0">
+                        <ul>
+                            <li v-for="item in postList" :key="item.id">
+                                <input type="checkbox" :checked="collectIds.indexOf(item.id)!=-1" @click="isCheck(item.id)">
+                                <img src="/leek_bbs/statics/images/thread.gif">
+                                <a :href="'/leek_bbs/skipPage/blogPage?theme_id='+item.all_id" target="_blank">{{item.title}}</a>&emsp;<span>{{item.collect_time|dateFormat}}</span>
+                                <div style="float: right;margin-right: 5px;"><a href="javascript:;" @click="deleteCollects(item.id)">删除</a></div>
+                            </li>
+                        </ul>
+                        <div class="layui-row" style="float:right;margin: 8px 0 2px;">
+                            <div>
+                                <el-pagination
+                                        background
+                                        @current-change="getCollect"
+                                        :current-page.sync="pageNo"
+                                        :page-size="pageSize"
+                                        layout="prev, pager, next, jumper"
+                                        prev-text="上一页"
+                                        next-text="下一页"
+                                        :total="total">
+                                </el-pagination>
+                            </div>
+                        </div>
+                        <div class="layui-row">
+                        <a href="javascript:;" @click="checkAll">全选</a> <button class="layui-btn layui-btn-sm layui-btn-danger" @click="deleteCollects">删除选中收藏</button>
+                    </div>
+                    </div>
+                    <div v-else>
+                        <div class="layui-row"><h3 align="center" style="opacity: .7;">暂无该收藏数据</h3></div>
+                    </div>
+                </div>
+                <div class="layui-tab" id="tab-plate" lay-filter="tabPlate" v-if="isShowPlate">
+                    <div v-if="plateList.length > 0">
+                        <ul>
+                            <li v-for="item in plateList" :key="item.id">
+                                <input type="checkbox" :checked="collectIds.indexOf(item.id)!=-1" @click="isCheck(item.id)">
+                                <img src="/leek_bbs/statics/images/thread.gif">
+                                <a :href="'/leek_bbs/skipPage/model?pl_type='+item.all_id" target="_blank">{{item.title}}</a>&emsp;<span>{{item.collect_time|dateFormat}}</span>
+                                <div style="float: right;margin-right: 5px;"><a href="javascript:;" @click="deleteCollects(item.id)">删除</a></div>
+                            </li>
+                        </ul>
+                        <div class="layui-row" style="float:right;margin: 8px 0 2px;">
+                            <div>
+                                <el-pagination
+                                        background
+                                        @current-change="getCollect"
+                                        :current-page.sync="pageNo"
+                                        :page-size="pageSize"
+                                        layout="prev, pager, next, jumper"
+                                        prev-text="上一页"
+                                        next-text="下一页"
+                                        :total="total">
+                                </el-pagination>
+                            </div>
+                        </div>
+                        <div class="layui-row">
+                            <a href="javascript:;" @click="checkAll">全选</a> <button class="layui-btn layui-btn-sm layui-btn-danger" @click="deleteCollects">删除选中收藏</button>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <div class="layui-row"><h3 align="center" style="opacity: .7;">暂无该收藏数据</h3></div>
+                    </div>
+                </div>
+                <div class="layui-tab" id="tab-log" lay-filter="tabLog" v-if="isShowLog">
+                    <div v-if="logList.length > 0">
+                        <ul>
+                            <li v-for="item in logList" :key="item.id">
+                                <input type="checkbox" :checked="collectIds.indexOf(item.id)!=-1" @click="isCheck(item.id)">
+                                <img src="/leek_bbs/statics/images/thread.gif">
+                                <a href="javascrip:;">{{item.title}}</a>&emsp;<span>{{item.collect_time|dateFormat}}</span>
+                                <div style="float: right;margin-right: 5px;"><a href="javascript:;">删除</a></div>
+                            </li>
+                        </ul>
+                        <div class="layui-row" style="float:right;margin: 8px 0 2px;">
+                            <div>
+                                <el-pagination
+                                        background
+                                        @current-change="getCollect"
+                                        :current-page.sync="pageNo"
+                                        :page-size="pageSize"
+                                        layout="prev, pager, next, jumper"
+                                        prev-text="上一页"
+                                        next-text="下一页"
+                                        :total="total">
+                                </el-pagination>
+                            </div>
+                        </div>
+                        <div class="layui-row">
+                            <a href="javascript:;" @click="checkAll">全选</a> <button class="layui-btn layui-btn-sm layui-btn-danger" @click="deleteCollects">删除选中收藏</button>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <div class="layui-row"><h3 align="center" style="opacity: .7;">暂无该收藏数据</h3></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚部分 -->
+    <footer>
+        <div class="row">
+            <p>
+                <span>20203631王瑜-20203638丁乐陶</span>
+<!--                <span>版权所有&nbsp;All Rights Reserved.</span>-->
+            </p>
+        </div>
+    </footer>
+</div>
+<script src="/leek_bbs/statics/component/common_import.js"></script>
+<!-- vue-element插件 -->
+<script src="/leek_bbs/statics/vue/element-ui/index.js"></script>
+<script src="/leek_bbs/statics/component/head_menu.js"></script>
+<script src="/leek_bbs/statics/js/my_project_collect.js"></script>
+<script>
+    let collectApp = new Vue({
+        el:"#collectApp",
+        data:{
+            isShowAll:true,
+            isShowPost:false,
+            isShowPlate:false,
+            isShowLog:false,
+            pageSize:8,
+            pageNo:1,
+            total:10,
+            collectList:[],
+            postList:[],
+            plateList:[],
+            logList:[],
+            collectIds:[],  //存放选中id
+            isCheckAll:false
+        },
+        methods:{
+            checkAll(){
+                this.collectIds = [];
+                this.isCheckAll = !this.isCheckAll;
+                if (this.isCheckAll){
+                    this.collectList.forEach(item => {
+                        this.collectIds.push(item.id);
+                    })
+                }
+            },
+            isCheck(collectId){
+                let idIndex = this.collectIds.indexOf(collectId);   //返回该id所在位置索引
+                if (idIndex != -1){
+                    //如果以包含了该id,则去除(变为非选中状态)
+                    this.collectIds.splice(idIndex, 1);
+                }else {
+                    this.collectIds.push(collectId);
+                }
+            },
+            deleteCollects(id){
+                console.log(this.collectIds);
+                if (id != null){
+                    this.collectIds.push(id);
+                }
+                if (this.collectIds.length > 0){
+                    let _this = this;
+                    ui.confirm('你确认要删除吗？',function(z){
+                        if(z){
+                            axios.post('/leek_bbs/bbs/collect/removeCollect',_this.collectIds).then(response => {
+                                let data = response.data;
+                                if (data.code == "500020"){
+                                    if (_this.isShowAll){
+                                        _this.getCollect(1,'');
+                                    } else if (_this.isShowPost) {
+                                        _this.getCollect(1,1);
+                                    }else {
+                                        _this.getCollect(1,2);
+                                    }
+                                    ui.success("删除成功",2000,true);
+                                    _this.collectIds = [];
+                                } else {
+                                    ui.error(data.msg,2000,true);
+                                }
+                            }).catch(error => {
+                                console.log(error);
+                            })
+                        }else {
+                            _this.isCheck(id);
+                        }
+                    });
+                } else {
+                    ui.alert("请选择您要删除的数据");
+                }
+            },
+            getCollect(val,type){
+                if (type != null){
+                    this.pageNo = 1;
+                }
+                axios.post('/leek_bbs/bbs/collect/listCollect',{
+                    uid:userInfo.id,
+                    type:type,
+                    pageNo: this.pageNo,
+                    pageSize: this.pageSize
+                }).then(response => {
+                    let dataObjec = response.data;
+                    //console.log(dataObjec);
+                    this.total = dataObjec.total;
+                    if (type == ''){    //所有收藏
+                        this.collectList = dataObjec.data;
+                    } else if (type == 1){      //帖子
+                        this.postList = dataObjec.data;
+                    }else if (type == 2){      //板块
+                        this.plateList = dataObjec.data;
+                    }else {      //日志
+                        this.logList = dataObjec.data;
+                    }
+                }).catch(error => {
+                    console.log(error);
+                })
+            }
+        },
+        filters: {
+            dateFormat(value) {
+                let date = new Date(value);
+                return `${date.getFullYear()}-${date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+            }
+        }
+    });
+
+    setTimeout(function () {
+        if (userInfo != null){
+            collectApp.getCollect(1,'');
+            setTimeout(function () {
+                $("#collectApp").css("display","block");
+            },50)
+        }else {
+            layui.login();
+        }
+    },200);
+</script>
+</body>
+</html>
